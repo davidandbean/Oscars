@@ -727,5 +727,81 @@
 })();
 </script>
 
+
+<script id="winners-addon">
+(function(){
+  // Only show Winners when at least one winner exists.
+  const CSV_URL = (typeof window.CSV_URL!=='undefined'&&window.CSV_URL)?window.CSV_URL:'https://docs.google.com/spreadsheets/d/e/2PACX-1vRdf-pBP_AyYyPgagUN1qXI5hCTLYajF473HMQpbeTG9JDymQA970RNg-2ymgJqmw_Cj3S2w_05rSvL/pub?gid=579714765&single=true&output=csv';
+  const POLL_MS = (typeof window.POLL_MS!=='undefined'&&window.POLL_MS)?window.POLL_MS:30000;
+  const WIN_TITLE_RE = /^(oscar\s*winners?|winners)$/i; // single-cell title for the main winners block
+
+  const byId=id=>document.getElementById(id);
+  function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+  function parseCSV(txt){ const rows=[]; let cur=[],cell='',q=false; for(let i=0;i<txt.length;i++){ const c=txt[i]; if(c==='"'){ if(q&&txt[i+1]==='"'){cell+='"'; i++;} else q=!q; } else if(!q&&(c===','||c==='\n'||c==='\r')){ cur.push(cell); cell=''; if(c===','){} else { if(c==='\r'&&txt[i+1]==='\n') i++; rows.push(cur); cur=[]; } } else cell+=c; } if(cell!==''||cur.length) {cur.push(cell); rows.push(cur);} return rows; }
+  const toLower = a=>a.map(x=>String(x??'').trim().toLowerCase());
+  function isWinnersHeader(c){ const l=toLower(c); const hasCat=['category','award','oscar','category name'].some(s=>l.includes(s)); const hasWin=['winner','winners','won','result','film','title','name'].some(s=>l.includes(s)); return hasCat&&hasWin; }
+
+  function findMainWinners(rows){
+    // Prefer a title row 'Oscar Winners'; else, first winners-style table found.
+    let startIdx=-1;
+    for(let i=0;i<rows.length;i++){
+      const non=(rows[i]||[]).filter(c=>String(c).trim()!=='');
+      if(non.length===1 && WIN_TITLE_RE.test(String(non[0]).trim())){ startIdx=i; break; }
+    }
+    for(let i=(startIdx>=0?startIdx+1:0); i<rows.length; i++){
+      const r=rows[i]; if(!r || r.every(c=>String(c).trim()==='')) continue;
+      if(isWinnersHeader(r)){
+        // body until next header/title or end
+        let j=i+1; for(; j<rows.length; j++){
+          const rr=rows[j]; if(!rr) continue;
+          const non=(rr||[]).filter(c=>String(c).trim()!=='');
+          if(non.length===1 && WIN_TITLE_RE.test(String(non[0]).trim())) break;
+          if(isWinnersHeader(rr)) break;
+        }
+        return { header: rows[i], body: rows.slice(i+1,j) };
+      }
+    }
+    return null;
+  }
+
+  function mapFilledWinners(header, body){
+    const l=toLower(header);
+    const ci = l.indexOf('category')>-1 ? l.indexOf('category') : l.findIndex(x=>/category|award|oscar/.test(x));
+    const wi = l.indexOf('winner')>-1 ? l.indexOf('winner') : l.findIndex(x=>/winner|result|title|film|name/.test(x));
+    if(ci<0 || wi<0) return [];
+    const out=[];
+    for(const r of body){ if(!r) continue; const cat=String(r[ci]??'').trim(); const win=String(r[wi]??'').trim(); if(cat && win) out.push({category:cat, winner:win}); }
+    return out;
+  }
+
+  function renderWinners(records){
+    const sec=byId('winnersSection'); const body=byId('bodyWinners'); if(!sec||!body) return;
+    body.innerHTML='';
+    if(!records.length){ sec.hidden=true; return; }
+    sec.hidden=false;
+    for(const r of records){
+      const tr=document.createElement('tr');
+      tr.innerHTML = '<td>'+esc(r.category)+'</td><td class="name">'+esc(r.winner)+'</td><td class="hide-sm"></td>';
+      body.appendChild(tr);
+    }
+  }
+
+  async function fetchCSV(url){ const res=await fetch(url,{cache:'no-store'}); if(!res.ok) throw new Error('HTTP '+res.status); return await res.text(); }
+
+  async function tick(){
+    try{
+      const txt = await fetchCSV(CSV_URL);
+      const rows = parseCSV(txt);
+      const main = findMainWinners(rows);
+      const recs = main ? mapFilledWinners(main.header, main.body) : [];
+      // Only show when at least one winner exists
+      renderWinners(recs);
+    }catch(e){ console.error('winners-addon error', e); }
+  }
+  tick(); setInterval(tick, POLL_MS);
+})();
+</script>
+
 </body>
 </html>
