@@ -24,10 +24,11 @@
   </style>
 </head>
 <body>
+  <!-- Embedded categories: 24 -->
   <div class=\"wrap\">
     <header>
       <div class=\"title\">BB&D+E Oscars Bracket — Kim's Entries</div>
-      <a class=\"pill\" href=\"../index.html\">← Back to Leaderboard</a>
+      <a class=\"pill\" href=\"https://davidandbean.github.io/Oscars/\">← Back to Leaderboard</a>
     </header>
 
     <div class=\"legend\">A checkmark appears next to each category when the winner is announced. Green = correct, red = incorrect.</div>
@@ -50,7 +51,7 @@
     function splitAllTables(rows){const hidx=[]; for(let i=0;i<rows.length;i++){const r=rows[i]; if(!r||r.every(c=>String(c).trim()==\"\"))continue; const l=toLower(r); if((l.includes('contestant')&&(l.includes('score')||l.includes('points'))) || (l.includes('category')&&l.includes('winner'))) hidx.push(i);} if(!hidx.length) return []; const sidx=[]; for(let i=0;i<rows.length;i++) if(isSectionTitleRow(rows[i])) sidx.push(i); const out=[]; for(let h=0;h<hidx.length;h++){const start=hidx[h]; const nextH=hidx[h+1]??rows.length; const nextS=sidx.find(ix=>ix>start)??rows.length; const end=Math.min(nextH,nextS); out.push({header:rows[start], body:rows.slice(start+1,end)});} return out;}
     function norm(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'').trim();}
     async function loadWinners(){const text=await fetch(CSV_URL,{cache:'no-store'}).then(r=>r.text()); const rows=parseCSV(text); const tables=splitAllTables(rows); let winners=[]; for(const t of tables){const h=t.header.map(x=>String(x||'').trim()); const low=toLower(h); if(low.includes('category')&&low.includes('winner')){const ic=h.findIndex(x=>/^\s*category\s*$/i.test(x)); const iw=h.findIndex(x=>/^\s*winner\s*$/i.test(x)); const inote=h.findIndex(x=>/^\s*notes?\s*$/i.test(x)); for(const r of t.body){const cat=String(r[ic]||'').trim(); const win=String(r[iw]||'').trim(); if(cat&&win) winners.push({category:cat, winner:win, notes: inote>=0?String(r[inote]||'').trim():''});}} } return winners;}
-    function render(winners){const body=document.getElementById('body'); body.innerHTML=''; const map=Object.create(null); for(const w of winners) map[norm(w.category)]=w; const cats=Object.keys(PICKS); let correct=0; for(const cat of cats){const pick=PICKS[cat]||''; const w=map[norm(cat)]; const win=w?w.winner:''; const decided=!!win; const isOk=decided && norm(pick)===norm(win); if(isOk) correct++; const status=decided?(isOk?'✅ Correct':'❌ Incorrect'):'—'; const cls=decided?(isOk?'ok':'no'):''; const tr=document.createElement('tr'); tr.innerHTML=`<td>${cat}</td><td class="name">${pick?pick.replace(/&/g,'&amp;').replace(/</g,'&lt;'):''}</td><td>${win?win.replace(/&/g,'&amp;').replace(/</g,'&lt;'):''}</td><td class="right ${cls}">${status}</td>`; body.appendChild(tr);} const tr=document.createElement('tr'); tr.innerHTML=`<td><strong>Total Correct</strong></td><td></td><td></td><td class="right"><strong>${correct}</strong></td>`; body.appendChild(tr);} 
+    function render(winners){const body=document.getElementById('body'); body.innerHTML=''; const map=Object.create(null); for(const w of winners) map[norm(w.category)]=w; const cats=Object.keys(PICKS); let correct=0; for(const cat of cats){const pick=PICKS[cat]||''; const w=map[norm(cat)]; const win=w?w.winner:''; const decided=!!win; const isOk=decided && norm(pick)===norm(win); if(isOk) correct++; const status=decided?(isOk?'✅ Correct':'❌ Incorrect'):'—'; const cls=decided?(isOk?'ok':'no'):''; const tr=document.createElement('tr'); tr.innerHTML=`<td>${cat}</td><td class="name">${pick?pick.replace(/&/g,'&amp;').replace(/</g,'&lt;'):''}</td><td>${win?win.replace(/&/g,'&amp;').replace(/</g,'&lt;'):''}</td><td class="right ${cls}">${status}</td>`; body.appendChild(tr);} const tr = document.createElement('tr'); tr.innerHTML = `<td><strong>Total Correct</strong></td><td></td><td></td><td class="right"><strong>${correct}</strong></td>`; body.appendChild(tr);} 
     (async()=>{try{const w=await loadWinners(); render(w);}catch(e){console.error(e); document.getElementById('body').innerHTML='<tr><td colspan="4">Failed to load winners. Please refresh.</td></tr>';}})();
   </script>
 </body>
