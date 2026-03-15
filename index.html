@@ -232,7 +232,7 @@
               </tr>
             </thead>
             <tbody id="bodyMain">
-              <tr><td colspan="3" style="padding:24px;">Loading…</td></tr>
+              <tr><td colspan="2" style="padding:24px;">Loading…</td></tr>
             </tbody>
           </table>
         </div>
@@ -300,11 +300,11 @@
               <tr>
                 <th><span>Category</span></th>
                 <th><span>Winner</span></th>
-                <th class="hide-sm"><span>Notes</span></th>
+                
               </tr>
             </thead>
             <tbody id="bodyWinners">
-              <tr><td colspan="3" style="padding:24px;">Waiting for winners…</td></tr>
+              <tr><td colspan="2" style="padding:24px;">Waiting for winners…</td></tr>
             </tbody>
           </table>
         </div>
@@ -559,7 +559,7 @@
     function renderWinners(records){
       const body=byId("bodyWinners");
       body.innerHTML="";
-      if(!records.length){ body.innerHTML=`<tr><td colspan="3" style="padding:24px;">Waiting for winners…</td></tr>`; return; }
+      if(!records.length){ body.innerHTML=`<tr><td colspan="2" style="padding:24px;">Waiting for winners…</td></tr>`; return; }
       for(const r of records){
         const tr=document.createElement("tr");
         tr.innerHTML=`
@@ -674,7 +674,7 @@ function updateTBWinnersOrder(current){
 }
 function renderTBWinners(records){
   const body=byId('bodyTBWinners'); if(!body) return; body.innerHTML='';
-  if(!records.length){ body.innerHTML='<tr><td colspan="3" style="padding:24px;">Waiting for tiebreaker winners…</td></tr>'; return; }
+  if(!records.length){ body.innerHTML='<tr><td colspan="2" style="padding:24px;">Waiting for tiebreaker winners…</td></tr>'; return; }
   for(const r of records){
     const tr=document.createElement('tr');
     tr.innerHTML = `
