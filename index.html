@@ -251,7 +251,7 @@
     <!-- ===== Tiebreaker Section ===== -->
     <section id="tbSection" class="section" hidden>
       <h2>🎯 Tiebreaker Leaderboard</h2>
-      <div class="desc" id="tbDesc">Higher Tiebreaker Score ranks higher. Click headers to sort.</div>
+      <div class="desc" id="tbDesc">Higher Tiebreaker Score ranks higher. Click headers to sort. Total highest tiebreaker score wins pot. If there is a tie in the tiebreaker, whoever had the highest score in last year's bracket wins the pot</div>
 
       <div class="controls">
         <div class="pill" id="countTB">—</div>
@@ -289,8 +289,7 @@
       <div class="controls">
         <div class="pill" id="countWinners">—</div>
         <div class="pill" id="winnersStatus">—</div>
-        <button id="resetWinners" class="btn-link" type="button" title="Reset the display order if needed">Reset order</button>
-      </div>
+</div>
 
       <div class="board" role="region" aria-label="Oscar Winners">
         <div class="filmstrip">
@@ -322,7 +321,6 @@
   <!-- ===== Tiebreaker Oscar Winners (separate section) ===== -->
   <section id="tbWinnersSection" class="section" hidden>
     <h2>🏆 Tiebreaker Oscar Winners</h2>
-    <div class="desc">Pulled from the "Tiebreaker Oscar Winners" table in the Google Sheet.</div>
     <div class="controls">
       <div class="pill" id="countTBWinners">—</div>
       <div class="pill" id="tbWinnersStatus">—</div>
@@ -693,13 +691,6 @@
       }
     });
 
-    // Admin: reset winners order
-    byId("resetWinners").addEventListener("click",()=>{
-      localStorage.removeItem(WINNERS_ORDER_KEY);
-      // Next refresh will re-seed order; quick re-render with current
-      renderWinners(updateWinnersOrder(state.winners.records));
-    });
-
     // Boot
     refresh();
     setInterval(refresh, POLL_MS);
@@ -709,13 +700,13 @@
 (function(){
   const CSV_URL = (typeof window.CSV_URL!=='undefined'&&window.CSV_URL)?window.CSV_URL:'https://docs.google.com/spreadsheets/d/e/2PACX-1vRdf-pBP_AyYyPgagUN1qXI5hCTLYajF473HMQpbeTG9JDymQA970RNg-2ymgJqmw_Cj3S2w_05rSvL/pub?gid=579714765&single=true&output=csv';
   const POLL_MS = (typeof window.POLL_MS!=='undefined'&&window.POLL_MS)?window.POLL_MS:30000;
-  const TB_TITLE_RE = /tiebreaker\s*oscar\s*winners/i; // single-cell title row marking the TB table
+  const TB_TITLE_RE = /tiebreaker\s*oscar\s*winners/i; // single-cell title marking TB table
 
   const byId=id=>document.getElementById(id);
   function setTBWinStatus(t,e){ const p=byId('tbWinnersStatus'); if(!p) return; p.textContent=t; p.classList.toggle('error',!!e); p.classList.toggle('live',!e&&String(t).toLowerCase()==='live'); }
-  function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;'); }
 
-  function parseCSV(txt){ const rows=[]; let cur=[],cell='',q=false; for(let i=0;i<txt.length;i++){ const c=txt[i]; if(c==='"'){ if(q&&txt[i+1]==='"'){cell+='"'; i++;} else q=!q; } else if(!q&&(c===','||c==='\n'||c==='\r')){ cur.push(cell); cell=''; if(c===','){} else { if(c==='\r'&&txt[i+1]==='\n') i++; rows.push(cur); cur=[]; } } else cell+=c; } if(cell!==''||cur.length) {cur.push(cell); rows.push(cur);} return rows; }
+  function parseCSV(txt){ const rows=[]; let cur=[],cell='',q=false; for(let i=0;i<txt.length;i++){ const c=txt[i]; if(c==='\"'){ if(q&&txt[i+1]==='\"'){cell+='\"'; i++;} else q=!q; } else if(!q&&(c===','||c==='\n'||c==='\r')){ cur.push(cell); cell=''; if(c===','){} else { if(c==='\r'&&txt[i+1]==='\n') i++; rows.push(cur); cur=[]; } } else cell+=c; } if(cell!==''||cur.length) {cur.push(cell); rows.push(cur);} return rows; }
   const toLower = a=>a.map(x=>String(x??'').trim().toLowerCase());
   function isWinnersHeader(c){ const l=toLower(c); const hasCat=['category','award','oscar','category name'].some(s=>l.includes(s)); const hasWin=['winner','winners','won','result','film','title','name'].some(s=>l.includes(s)); return hasCat&&hasWin; }
 
