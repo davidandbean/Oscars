@@ -91,34 +91,38 @@ summary::after{
 }
 
 
-/* ===== Row-as-pill containers ===== */
-.details{ 
-  list-style:none; margin:12px 10px; border:1px solid var(--row-border); border-radius:16px; 
-  background: linear-gradient(180deg, rgba(255,255,255,.03), transparent 55%), var(--panel-2);
-  box-shadow: 0 8px 22px rgba(0,0,0,.25);
+/* ===== Fluid pill sizing + larger type on small screens ===== */
+.list{display:grid; grid-template-columns:1fr; gap:0;} /* let pills size naturally */
+
+/* Base: roomy pills on desktop/tablet */
+.details{
+  max-width: min(920px, 92%);
+  margin: 14px auto; /* center horizontally */
 }
-.details:first-child{ margin-top:8px; }
-.details:last-child{ margin-bottom:14px; }
 
-/* make the heading band feel like a pill header */
-summary{ padding:16px 18px; border-bottom:1px dashed rgba(245,197,66,.35); }
-summary .cat{ font-weight:800; letter-spacing:.1px; }
+/* Medium screens: slightly narrower */
+@media (max-width: 1024px){
+  .details{ max-width: min(760px, 94%); }
+}
 
-/* hide chevron; keep summary clickable for accessibility */
-summary::after{ display:none; }
-
-/* content looks like body of the pill  */
-.content{ padding: 14px 18px 16px 18px; }
-.pick{ font-weight:500; }
-
-/* better spacing & readability on small screens */
+/* Phones: narrow, full-bleed feel with bigger type */
 @media (max-width: 768px){
-  html, body{ font-size:18px; }
-  .wrap{ padding:22px 14px 56px; }
-  .details{ margin:10px 6px; border-radius:18px; }
-  summary{ padding:16px 16px; }
-  .content{ padding:12px 16px 16px 16px; line-height:1.5; }
+  html, body{ font-size: 18.5px; }           /* larger base for readability */
+  .wrap{ padding:22px 12px 56px; }
+  .details{ max-width: 100%; margin: 10px 0; border-radius: 18px; }
+  summary{ padding:18px 16px; }
+  summary .cat{ font-size:1.08rem; line-height:1.25; }
+  .content{ padding:12px 16px 18px; }
+  .pick{ font-size:1.06rem; line-height:1.5; }
+  /* Ensure no horizontal scroll */
   summary, .content{ white-space: normal; overflow-wrap:anywhere; word-break:break-word; hyphens:auto; }
+}
+
+/* Very small phones */
+@media (max-width: 360px){
+  html, body{ font-size: 19px; }
+  summary{ padding:16px 14px; }
+  .content{ padding:10px 14px 16px; }
 }
 
 </style>
