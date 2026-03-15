@@ -6,89 +6,31 @@
   <title>Bean's Oscar Picks — BB&D+E Oscars Bracket</title>
   <meta name=\"description\" content=\"Bean's selections for the Oscars bracket\"/>
   <style>
-:root {
-  color-scheme: light dark;
-  --bg:#0a0a0a; --bg-grad1: rgba(245,197,66,.10); --bg-grad2: rgba(160,82,45,.10);
-  --panel:#111317; --panel-2:#171a20; --text:#f6f7fb; --muted:#aab1bc;
-  --gold:#f5c542; --gold-2:#ffdf7e; --row-alt:#0c0f14; --row-border:#232832;
-  --shadow: 0 14px 40px rgba(0,0,0,.45);
-}
-@media (prefers-color-scheme: light){
-  :root{ --bg:#faf8f2; --bg-grad1: rgba(245,197,66,.16); --bg-grad2: rgba(160,82,45,.12); --panel:#ffffff; --panel-2:#fbfaf6; --text:#111317; --muted:#4f5966; --row-alt:#fffdf7; --row-border:#ece6d8; --shadow: 0 10px 28px rgba(0,0,0,.08); }
-}
-html, body { height: 100%; }
-body{
-  margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  background:
-    radial-gradient(1200px 800px at 0% 0%, var(--bg-grad1), transparent 60%),
-    radial-gradient(1200px 800px at 100% 10%, var(--bg-grad2), transparent 55%),
-    var(--bg);
-  color: var(--text);
-}
-.wrap{ max-width:1100px; margin:0 auto; padding:28px 16px 56px; }
-
-/* Banner */
-.hero{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom: 14px; }
-.title{
-  display:flex; align-items:center; gap:14px;
-  font-size: clamp(1.8rem, 4.6vw, 2.6rem); font-weight: 1000; letter-spacing:.25px; line-height:1.15;
-  background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-.trophy{
-  width:58px; height:58px; border-radius:12px; display:grid; place-items:center; font-size:30px;
-  background: conic-gradient(from 210deg, rgba(245,197,66,.35), rgba(245,197,66,.08) 40%, rgba(167,139,250,.2) 60%, rgba(245,197,66,.35));
-  border:1px solid rgba(245,197,66,.5);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), var(--shadow);
-}
-.back{ text-decoration:none; color: var(--muted); border:1px solid var(--row-border); background:var(--panel); padding:10px 14px; border-radius:999px; }
-.back:hover{ color:var(--gold); border-color: rgba(245,197,66,.5); }
-.subtitle{ color: var(--muted); font-size:.95rem; }
-.ribbon{ display:flex; align-items:center; gap:10px; color: var(--gold); font-weight:700; text-transform:uppercase; letter-spacing:.12em; margin: 6px 0 12px; }
-.ribbon .bar{ flex:1; height:2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity:.6; }
-
-/* Accordion Card */
-.board{
-  background:
-    linear-gradient(180deg, rgba(255,215,128,.06), transparent 40%),
-    radial-gradient(400px 120px at 10% 0%, rgba(245,197,66,.12), transparent 60%),
-    var(--panel);
-  border:1px solid var(--row-border);
-  border-radius:18px; overflow:hidden; box-shadow:var(--shadow);
-}
-.filmstrip{ display:grid; grid-auto-flow:column; gap:6px; padding:8px 14px; align-items:center; background: linear-gradient(180deg, rgba(255,255,255,.04), transparent); border-bottom: 1px dashed rgba(245,197,66,.35); font-size:.9rem; color: var(--muted); }
-.filmrow{ display:flex; gap:6px; }
-.filmcell{ width:12px; height:12px; border:1px solid rgba(255,255,255,.2); border-radius:3px; background: rgba(255,255,255,.06); }
-
-/* Details/summary accordion items */
-.list{ margin:0; padding:0; }
-.details{ border-top:1px solid var(--row-border); list-style:none; }
-.details:first-child{ border-top:none; }
-summary{
-  cursor:pointer; position:relative; padding:14px 18px; outline:none;
-  display:flex; align-items:center; gap:12px; list-style:none; user-select:none;
-}
-summary .cat{ font-weight:800; }
-summary::marker{ display:none; content:""; }
-/* chevron */
-summary::after{
-  content:"›"; position:absolute; right:18px; transform: rotate(-90deg); color: var(--gold); transition: transform .18s ease, color .18s ease;
-}
-.details:not([open]) summary::after{ transform: rotate(90deg); color: var(--muted); }
-
-.content{ padding: 0 18px 16px 18px; color: var(--text); }
-.pick{ font-weight:500; }
-
-/* Alternate row background */
-.details:nth-child(even) summary{ background: var(--row-alt); }
-
-/* Mobile: ensure wrapping and large tap targets */
-@media (max-width: 680px){
-  .title{ font-size: clamp(1.6rem, 6vw, 2.2rem); }
-  .trophy{ width:52px; height:52px; font-size:26px; }
-  summary, .content{ white-space: normal; overflow-wrap:anywhere; word-break:break-word; hyphens:auto; }
-}
+:root { color-scheme: light dark; --bg:#0a0a0a; --bg1:rgba(245,197,66,.10); --bg2:rgba(160,82,45,.10); --panel:#111317; --panel2:#171a20; --text:#f6f7fb; --muted:#aab1bc; --gold:#f5c542; --gold2:#ffdf7e; --row:#0c0f14; --border:#232832; --shadow:0 14px 40px rgba(0,0,0,.45);} 
+@media (prefers-color-scheme: light){ :root{ --bg:#faf8f2; --bg1:rgba(245,197,66,.16); --bg2:rgba(160,82,45,.12); --panel:#ffffff; --panel2:#fbfaf6; --text:#111317; --muted:#4f5966; --row:#fffdf7; --border:#ece6d8; --shadow:0 10px 28px rgba(0,0,0,.08);} }
+html, body{height:100%}
+body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:radial-gradient(1200px 800px at 0% 0%, var(--bg1), transparent 60%),radial-gradient(1200px 800px at 100% 10%, var(--bg2), transparent 55%),var(--bg);color:var(--text)}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 16px 56px}
+.hero{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.title{display:flex;align-items:center;gap:14px;font-size:clamp(1.8rem,4.6vw,2.6rem);font-weight:1000;letter-spacing:.25px;line-height:1.15;background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.trophy{width:58px;height:58px;border-radius:12px;display:grid;place-items:center;font-size:30px;background:conic-gradient(from 210deg, rgba(245,197,66,.35), rgba(245,197,66,.08) 40%, rgba(167,139,250,.2) 60%, rgba(245,197,66,.35));border:1px solid rgba(245,197,66,.5);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06), var(--shadow)}
+.back{text-decoration:none;color:var(--muted);border:1px solid var(--border);background:var(--panel);padding:10px 14px;border-radius:999px}
+.back:hover{color:var(--gold);border-color:rgba(245,197,66,.5)}
+.ribbon{display:flex;align-items:center;gap:10px;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.12em;margin:6px 0 12px}
+.ribbon .bar{flex:1;height:2px;background:linear-gradient(90deg, transparent, var(--gold), transparent);opacity:.6}
+.board{background:linear-gradient(180deg, rgba(255,215,128,.06), transparent 40%),radial-gradient(400px 120px at 10% 0%, rgba(245,197,66,.12), transparent 60%),var(--panel);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
+.filmstrip{display:grid;grid-auto-flow:column;gap:6px;padding:8px 14px;align-items:center;background:linear-gradient(180deg, rgba(255,255,255,.04), transparent);border-bottom:1px dashed rgba(245,197,66,.35);font-size:.9rem;color:var(--muted)}
+.filmrow{display:flex;gap:6px}
+.filmcell{width:12px;height:12px;border:1px solid rgba(255,255,255,.2);border-radius:3px;background:rgba(255,255,255,.06)}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse}
+thead th{background:linear-gradient(180deg,var(--panel2), transparent);text-align:left;padding:14px 16px;font-weight:900;font-size:1rem;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:1}
+tbody td{padding:14px 16px;border-top:1px solid var(--border);font-size:1rem}
+tbody tr:nth-child(even) td{background:var(--row)}
+.status{width:48px;text-align:right;font-weight:900}
+.ok{color:#22c55e}
+.no{color:#ef4444}
+@media (max-width:680px){.title{font-size:clamp(1.6rem,6vw,2.2rem)}.trophy{width:52px;height:52px;font-size:26px}thead th,tbody td{white-space:normal;overflow-wrap:anywhere;word-break:break-word;hyphens:auto}.table-wrap{overflow-x:hidden}}
 </style>
 </head>
 <body>
@@ -104,33 +46,84 @@ summary::after{
         <div class=\"filmrow\" aria-hidden=\"true\"><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div></div>
         <div style=\"justify-self:end; font-weight:600; color:var(--gold);\">🎬 Picks</div>
       </div>
-      <ul class=\"list\">
-        <li class="details"><details open><summary><span class="cat">Actor in a Leading Role</span></summary><div class="content"><div class="pick">Michael B. Jordan - Sinners</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Actor in a Supporting Role</span></summary><div class="content"><div class="pick">Sean Penn - One Battle After Another</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Actress in a Leading Role</span></summary><div class="content"><div class="pick">Jessie Buckley - Hamnet</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Actress in a Supporting Role</span></summary><div class="content"><div class="pick">Teyana Taylor - One Battle After Another</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Animated Feature Film</span></summary><div class="content"><div class="pick">K-Pop Demon Hunters</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Animated Short Film</span></summary><div class="content"><div class="pick">Butterfly</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Cinematography</span></summary><div class="content"><div class="pick">Sinners</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Costume Design</span></summary><div class="content"><div class="pick">Frankenstein - Kate Hawley</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Directing</span></summary><div class="content"><div class="pick">Ryan Coogler - Sinners</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Documentary Feature Film</span></summary><div class="content"><div class="pick">The Perfect Neighbor</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Documentary Short Film</span></summary><div class="content"><div class="pick">All the Empty Rooms</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Film Editing</span></summary><div class="content"><div class="pick">One Battle After Another</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">International Feature Film</span></summary><div class="content"><div class="pick">Sentimental Value</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Makeup &amp; Hairstyling</span></summary><div class="content"><div class="pick">Frankenstein</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Music (Original Score)</span></summary><div class="content"><div class="pick">Sinners</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Music (Original Song)</span></summary><div class="content"><div class="pick">Golden - K-Pop Demon Hunters</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Best Picture</span></summary><div class="content"><div class="pick">One Battle After Another</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Production Design</span></summary><div class="content"><div class="pick">Frankenstein</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Live Action Short Film</span></summary><div class="content"><div class="pick">Two People Exchanging Saliva</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Sound</span></summary><div class="content"><div class="pick">F1</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Visual Effects</span></summary><div class="content"><div class="pick">Avatar: Fire and Ash</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Writing (Adapted Screenplay)</span></summary><div class="content"><div class="pick">One Battle After Another</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Writing (Original Screenplay)</span></summary><div class="content"><div class="pick">Sinners</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Casting</span></summary><div class="content"><div class="pick">Sinners - Francine Maisler</div></div></details></li>
-      </ul>
+      <div class=\"table-wrap\">
+        <table>
+          <thead>
+            <tr><th>Category</th><th>Pick</th><th class=\"wincol\">Winner</th><th class=\"status\"></th></tr>
+          </thead>
+          <tbody id=\"picksBody\">
+            <tr data-cat="Actor in a Leading Role" data-key="actorinaleadingrole" data-pick="Michael B. Jordan - Sinners"><td>Actor in a Leading Role</td><td>Michael B. Jordan - Sinners</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Actor in a Supporting Role" data-key="actorinasupportingrole" data-pick="Sean Penn - One Battle After Another"><td>Actor in a Supporting Role</td><td>Sean Penn - One Battle After Another</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Actress in a Leading Role" data-key="actressinaleadingrole" data-pick="Jessie Buckley - Hamnet"><td>Actress in a Leading Role</td><td>Jessie Buckley - Hamnet</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Actress in a Supporting Role" data-key="actressinasupportingrole" data-pick="Teyana Taylor - One Battle After Another"><td>Actress in a Supporting Role</td><td>Teyana Taylor - One Battle After Another</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Animated Feature Film" data-key="animatedfeaturefilm" data-pick="K-Pop Demon Hunters"><td>Animated Feature Film</td><td>K-Pop Demon Hunters</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Animated Short Film" data-key="animatedshortfilm" data-pick="Butterfly"><td>Animated Short Film</td><td>Butterfly</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Cinematography" data-key="cinematography" data-pick="Sinners"><td>Cinematography</td><td>Sinners</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Costume Design" data-key="costumedesign" data-pick="Frankenstein - Kate Hawley"><td>Costume Design</td><td>Frankenstein - Kate Hawley</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Directing" data-key="directing" data-pick="Ryan Coogler - Sinners"><td>Directing</td><td>Ryan Coogler - Sinners</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Documentary Feature Film" data-key="documentaryfeaturefilm" data-pick="The Perfect Neighbor"><td>Documentary Feature Film</td><td>The Perfect Neighbor</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Documentary Short Film" data-key="documentaryshortfilm" data-pick="All the Empty Rooms"><td>Documentary Short Film</td><td>All the Empty Rooms</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Film Editing" data-key="filmediting" data-pick="One Battle After Another"><td>Film Editing</td><td>One Battle After Another</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="International Feature Film" data-key="internationalfeaturefilm" data-pick="Sentimental Value"><td>International Feature Film</td><td>Sentimental Value</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Makeup &amp; Hairstyling" data-key="makeuphairstyling" data-pick="Frankenstein"><td>Makeup &amp; Hairstyling</td><td>Frankenstein</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Music (Original Score)" data-key="musicoriginalscore" data-pick="Sinners"><td>Music (Original Score)</td><td>Sinners</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Music (Original Song)" data-key="musicoriginalsong" data-pick="Golden - K-Pop Demon Hunters"><td>Music (Original Song)</td><td>Golden - K-Pop Demon Hunters</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Best Picture" data-key="bestpicture" data-pick="One Battle After Another"><td>Best Picture</td><td>One Battle After Another</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Production Design" data-key="productiondesign" data-pick="Frankenstein"><td>Production Design</td><td>Frankenstein</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Live Action Short Film" data-key="liveactionshortfilm" data-pick="Two People Exchanging Saliva"><td>Live Action Short Film</td><td>Two People Exchanging Saliva</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Sound" data-key="sound" data-pick="F1"><td>Sound</td><td>F1</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Visual Effects" data-key="visualeffects" data-pick="Avatar: Fire and Ash"><td>Visual Effects</td><td>Avatar: Fire and Ash</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Writing (Adapted Screenplay)" data-key="writingadaptedscreenplay" data-pick="One Battle After Another"><td>Writing (Adapted Screenplay)</td><td>One Battle After Another</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Writing (Original Screenplay)" data-key="writingoriginalscreenplay" data-pick="Sinners"><td>Writing (Original Screenplay)</td><td>Sinners</td><td class="wincol"></td><td class="status"></td></tr>
+            <tr data-cat="Casting" data-key="casting" data-pick="Sinners - Francine Maisler"><td>Casting</td><td>Sinners - Francine Maisler</td><td class="wincol"></td><td class="status"></td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
+  <script>
+  const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRdf-pBP_AyYyPgagUN1qXI5hCTLYajF473HMQpbeTG9JDymQA970RNg-2ymgJqmw_Cj3S2w_05rSvL/pub?gid=579714765&single=true&output=csv';
+  const KEY_ORDER = 'entries_winners_order_v1';
+  function parseCSV(text){const rows=[];let cur=[],cell="",inQ=false,i=0;while(i<text.length){const c=text[i];if(c==='"'){if(inQ&&text[i+1]==='"'){cell+='"';i+=2;continue;} inQ=!inQ;i++;continue;} if(!inQ&&(c===','||c==='\n'||c==='\r')){cur.push(cell);cell=""; if(c===','){i++;continue;} if(c==='\r'&&text[i+1]==='\n')i++; i++; rows.push(cur);cur=[];continue;} cell+=c;i++;} cur.push(cell); if(cur.some(x=>String(x).trim()!="")) rows.push(cur); return rows;}
+  const toLower = a=>a.map(x=>String(x||"").trim().toLowerCase());
+  function isWinnersHeaderRow(cells){const l=toLower(cells);const hasCat=["category","award","oscar","category name","award name"].some(s=>l.includes(s)); const hasWin=["winner","winners","result","selected","pick","film","title","name"].some(s=>l.includes(s)); return hasCat && hasWin;}
+  function splitAllTables(rows){const headerIdxs=[]; for(let i=0;i<rows.length;i++){const r=rows[i]; if(!r||r.every(c=>String(c).trim()==="")) continue; if(isWinnersHeaderRow(r)) headerIdxs.push(i);} if(!headerIdxs.length) return []; const tables=[]; for(let h=0;h<headerIdxs.length;h++){const start=headerIdxs[h]; const next=headerIdxs[h+1]??rows.length; tables.push({header:rows[start], body:rows.slice(start+1,next)});} return tables;}
+  function cleanBody(body){return body.filter(r=>r && r.some(c=>String(c).trim()!=='')).filter(r=>r.every((c,i)=> i===0 || String(c).trim()!=='' || true));}
+  function mapWinners(table){if(!table) return {map:{}, order:[]}; const header=table.header, body=cleanBody(table.body); const lower=toLower(header); const idxCat=lower.findIndex(x=>["category","award","oscar","category name","award name"].includes(x)); const idxWin=lower.findIndex(x=>["winner","winners","result","selected","pick","film","title","name"].includes(x)); if(idxCat<0||idxWin<0) return {map:{},order:[]};
+    const recs=[]; for(const r of body){const cat=String(r[idxCat]||'').trim(); const win=String(r[idxWin]||'').trim(); if(cat){recs.push({cat, win});}}
+    // Normalized map and reveal order from localStorage: append when win becomes non-empty
+    const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'');
+    const cur = {}; recs.forEach(r=>{ if(r.win) cur[norm(r.cat)] = {cat:r.cat, win:r.win}; });
+    let order=[]; try{ order=JSON.parse(localStorage.getItem(KEY_ORDER)||'[]'); }catch{ order=[]; }
+    // Keep existing decided
+    order = order.filter(k=>cur[k]);
+    // Append new winners at end, in sheet order
+    for(const r of recs){ const k=norm(r.cat); if(r.win && !order.includes(k)) order.push(k); }
+    localStorage.setItem(KEY_ORDER, JSON.stringify(order));
+    return {map:cur, order};
+  }
+  function normalize(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'');}
+  async function refreshMarks(){
+    try{
+      const text = await fetch(CSV_URL,{cache:'no-store'}).then(r=>r.text());
+      const rows = parseCSV(text);
+      const tables = splitAllTables(rows);
+      const winnersT = tables[0];
+      const {map:winMap, order} = mapWinners(winnersT);
+      const tbody = document.querySelector('#picksBody');
+      const rowsEls = Array.from(tbody.querySelectorAll('tr[data-cat]'));
+      // Compute decided vs undecided
+      const byKey = {}; rowsEls.forEach(tr=>{byKey[tr.dataset.key]=tr;});
+      const decided = order.map(k=>byKey[k]).filter(Boolean);
+      const undecided = rowsEls.filter(tr=>!order.includes(tr.dataset.key));
+      // Reorder: decided in reveal order, then undecided
+      tbody.innerHTML='';
+      for(const tr of [...decided, ...undecided]) tbody.appendChild(tr);
+      // Mark each row
+      for(const tr of rowsEls){ const key=tr.dataset.key; const winner = winMap[key]?.win || ''; const pick = tr.dataset.pick || ''; const cell = tr.querySelector('.status'); if(!winner){ cell.textContent=''; cell.className='status'; continue; } const ok = normalize(pick)===normalize(winner); cell.textContent = ok ? '✔' : '✖'; cell.className = 'status ' + (ok?'ok':'no'); tr.querySelector('.wincol').textContent = winner; }
+    }catch(e){ console.error('Winners fetch failed', e); }
+  }
+  document.addEventListener('DOMContentLoaded', refreshMarks);
+</script>
 </body>
 </html>
