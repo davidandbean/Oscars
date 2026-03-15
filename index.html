@@ -318,6 +318,40 @@
         </div>
       </div>
     </section>
+
+  <!-- ===== Tiebreaker Oscar Winners (separate section) ===== -->
+  <section id="tbWinnersSection" class="section" hidden>
+    <h2>🏆 Tiebreaker Oscar Winners</h2>
+    <div class="desc">Pulled from the "Tiebreaker Oscar Winners" table in the Google Sheet.</div>
+    <div class="controls">
+      <div class="pill" id="countTBWinners">—</div>
+      <div class="pill" id="tbWinnersStatus">—</div>
+    </div>
+    <div class="board" role="region" aria-label="Tiebreaker Oscar Winners">
+      <div class="filmstrip">
+        <div class="filmrow" aria-hidden="true">
+          <div class="filmcell"></div><div class="filmcell"></div><div class="filmcell"></div>
+          <div class="filmcell"></div><div class="filmcell"></div><div class="filmcell"></div>
+          <div class="filmcell"></div><div class="filmcell"></div><div class="filmcell"></div>
+        </div>
+        <div style="justify-self:end; font-weight:600; color:var(--gold);">🎬 Live</div>
+      </div>
+      <div class="table-wrap">
+        <table id="tableTBWinners">
+          <thead>
+            <tr>
+              <th><span>Category</span></th>
+              <th><span>Winner</span></th>
+            </tr>
+          </thead>
+          <tbody id="bodyTBWinners">
+            <tr><td colspan="2" style="padding:24px;">Waiting for tiebreaker winners…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   </div>
 
   <div id="confetti" class="confetti" aria-hidden="true"></div>
@@ -670,5 +704,37 @@
     refresh();
     setInterval(refresh, POLL_MS);
   </script>
+
+<script id="tbwinners-addon">
+(function(){
+  const CSV_URL = (typeof window.CSV_URL!=='undefined'&&window.CSV_URL)?window.CSV_URL:'https://docs.google.com/spreadsheets/d/e/2PACX-1vRdf-pBP_AyYyPgagUN1qXI5hCTLYajF473HMQpbeTG9JDymQA970RNg-2ymgJqmw_Cj3S2w_05rSvL/pub?gid=579714765&single=true&output=csv';
+  const POLL_MS = (typeof window.POLL_MS!=='undefined'&&window.POLL_MS)?window.POLL_MS:30000;
+  const TB_TITLE_RE = /tiebreaker\s*oscar\s*winners/i; // single-cell title row marking the TB table
+
+  const byId=id=>document.getElementById(id);
+  function setTBWinStatus(t,e){ const p=byId('tbWinnersStatus'); if(!p) return; p.textContent=t; p.classList.toggle('error',!!e); p.classList.toggle('live',!e&&String(t).toLowerCase()==='live'); }
+  function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+  function parseCSV(txt){ const rows=[]; let cur=[],cell='',q=false; for(let i=0;i<txt.length;i++){ const c=txt[i]; if(c==='"'){ if(q&&txt[i+1]==='"'){cell+='"'; i++;} else q=!q; } else if(!q&&(c===','||c==='\n'||c==='\r')){ cur.push(cell); cell=''; if(c===','){} else { if(c==='\r'&&txt[i+1]==='\n') i++; rows.push(cur); cur=[]; } } else cell+=c; } if(cell!==''||cur.length) {cur.push(cell); rows.push(cur);} return rows; }
+  const toLower = a=>a.map(x=>String(x??'').trim().toLowerCase());
+  function isWinnersHeader(c){ const l=toLower(c); const hasCat=['category','award','oscar','category name'].some(s=>l.includes(s)); const hasWin=['winner','winners','won','result','film','title','name'].some(s=>l.includes(s)); return hasCat&&hasWin; }
+
+  function findTB(rows){
+    let title=-1; for(let i=0;i<rows.length;i++){ const non=(rows[i]||[]).filter(c=>String(c).trim()!==''); if(non.length===1 && TB_TITLE_RE.test(String(non[0]).trim())){ title=i; break; } }
+    if(title<0) return null;
+    for(let i=title+1;i<rows.length;i++){ const r=rows[i]; if(!r||r.every(c=>String(c).trim()==='')) continue; if(isWinnersHeader(r)){ let j=i+1; for(;j<rows.length;j++){ const rr=rows[j]; if(!rr) continue; const non=(rr||[]).filter(c=>String(c).trim()!==''); if(non.length===1 && TB_TITLE_RE.test(String(non[0]).trim())) break; if(isWinnersHeader(rr)) break; } return {header:rows[i], body:rows.slice(i+1,j)}; } }
+    return null;
+  }
+
+  function mapTB(header, body){ const l=toLower(header); const ci=l.indexOf('category')>-1?l.indexOf('category'):l.findIndex(x=>/category|award|oscar/.test(x)); const wi=l.indexOf('winner')>-1?l.indexOf('winner'):l.findIndex(x=>/winner|result|title|film|name/.test(x)); if(ci<0||wi<0) return []; const out=[]; for(const r of body){ if(!r) continue; const cat=String(r[ci]??'').trim(); const win=String(r[wi]??'').trim(); if(cat && win) out.push({category:cat, winner:win}); } return out; }
+
+  function renderTB(recs){ const sec=byId('tbWinnersSection'); const body=byId('bodyTBWinners'); if(!sec||!body) return; if(!recs.length){ sec.hidden=true; body.innerHTML='<tr><td colspan="2" style="padding:24px;">Waiting for tiebreaker winners…</td></tr>'; return; } sec.hidden=false; setTBWinStatus('Live',false); body.innerHTML=''; for(const r of recs){ const tr=document.createElement('tr'); tr.innerHTML='<td>'+esc(r.category)+'</td><td class="name">'+esc(r.winner)+'</td>'; body.appendChild(tr);} const c=byId('countTBWinners'); if(c) c.textContent=recs.length+' shown'; }
+
+  async function fetchCSV(url){ const res=await fetch(url,{cache:'no-store'}); if(!res.ok) throw new Error('HTTP '+res.status); return await res.text(); }
+  async function tick(){ try{ const txt=await fetchCSV(CSV_URL); const rows=parseCSV(txt); const tb=findTB(rows); const recs= tb? mapTB(tb.header, tb.body):[]; renderTB(recs); } catch(e){ console.error('tb error', e); setTBWinStatus('Update failed — retrying…', true);} }
+  tick(); setInterval(tick, POLL_MS);
+})();
+</script>
+
 </body>
 </html>
