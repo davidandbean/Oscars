@@ -192,6 +192,10 @@
     }
   
   .pillbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;}
+  .pillbar .hint{color:var(--muted);font-size:.9rem;margin-right:6px;}
+  .pillbar .pill{text-decoration:none !important;}
+  .pillbar .pill:visited{text-decoration:none !important;}
+  #countMain,#statusPill,#countTB,#tbStatus,#winnersStatus{display:none !important;}
 </style>
 </head>
 <body>
@@ -204,7 +208,7 @@
       <div class="subtitle">Auto-refreshes every 30 seconds • Click headers to sort</div>
       <div class="ribbon"><div class="bar"></div><span>Academy Awards</span><div class="bar"></div></div>
     
-<div id="entriesPills" class="pillbar"><a class="pill" href="entries/abi.html">Abi</a><a class="pill" href="entries/bean.html">Bean</a><a class="pill" href="entries/beebo.html">Beebo</a><a class="pill" href="entries/damon.html">Damon</a><a class="pill" href="entries/david.html">David</a><a class="pill" href="entries/kim.html">Kim</a><a class="pill" href="entries/lydia.html">Lydia</a><a class="pill" href="entries/olivia.html">Olivia</a><a class="pill" href="entries/papa.html">Papa</a></div>
+<div id="entriesPills" class="pillbar"><span class="hint">Click to see your entries:</span><a class="pill" href="entries/abi.html">Abi</a><a class="pill" href="entries/bean.html">Bean</a><a class="pill" href="entries/beebo.html">Beebo</a><a class="pill" href="entries/damon.html">Damon</a><a class="pill" href="entries/david.html">David</a><a class="pill" href="entries/kim.html">Kim</a><a class="pill" href="entries/lydia.html">Lydia</a><a class="pill" href="entries/olivia.html">Olivia</a><a class="pill" href="entries/papa.html">Papa</a></div>
 </header>
 
     <!-- ===== Overall Leaderboard Section ===== -->
