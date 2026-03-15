@@ -6,125 +6,264 @@
   <title>Kim's Oscar Picks — BB&D+E Oscars Bracket</title>
   <meta name=\"description\" content=\"Kim's selections for the Oscars bracket\"/>
   <style>
-    :root{
-      color-scheme: light dark;
-      /* Core theme */
-      --bg:#0a0a0a; --bg1:rgba(245,197,66,.10); --bg2:rgba(160,82,45,.10);
-      --panel:#111317; --panel2:#171a20; --text:#f6f7fb; --muted:#aab1bc;
-      --gold:#f5c542; --gold2:#ffdf7e; --gold3:#b68e2a; --amber:#d9a441;
-      --row:#0c0f14; --border:#232832; --shadow:0 14px 40px rgba(0,0,0,.45);
-      --tap:48px;
-    }
-    @media (prefers-color-scheme: light){ :root{ --bg:#0e0f12; --bg1:rgba(245,197,66,.18); --bg2:rgba(160,82,45,.14); --panel:#14161c; --panel2:#191c23; --text:#f6f7fb; --muted:#d3d9e3; --row:#10131a; --border:#2a3040; --shadow:0 10px 28px rgba(0,0,0,.35);} }
 
-    html, body{ height:100%; }
-    body{
-      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    :root {
+      color-scheme: light dark;
+      /* Oscars palette */
+      --bg: #0a0a0a;
+      --bg-grad1: rgba(245,197,66,.10);
+      --bg-grad2: rgba(160,82,45,.10);
+      --panel: #111317;
+      --panel-2: #171a20;
+      --text: #f6f7fb;
+      --muted: #aab1bc;
+      --gold: #f5c542;
+      --gold-2: #ffdf7e;
+      --gold-3: #b68e2a;
+      --accent: #a78bfa;
+      --danger: #ef4444;
+      --green: #22c55e;
+      --row-alt: #0c0f14;
+      --row-border: #232832;
+      --shadow: 0 14px 40px rgba(0,0,0,.45);
+      --tap: 48px; /* minimum touch size */
+      --pad: max(16px, env(safe-area-inset-left));
+      --pad-r: max(16px, env(safe-area-inset-right));
+      --pad-b: max(20px, env(safe-area-inset-bottom));
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #faf8f2;
+        --bg-grad1: rgba(245,197,66,.16);
+        --bg-grad2: rgba(160,82,45,.12);
+        --panel: #ffffff;
+        --panel-2: #fbfaf6;
+        --text: #111317;
+        --muted: #4f5966;
+        --row-alt: #fffdf7;
+        --row-border: #ece6d8;
+        --shadow: 0 10px 28px rgba(0,0,0,.08);
+      }
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
       background:
-        radial-gradient(1400px 900px at 0% 0%, var(--bg1), transparent 60%),
-        radial-gradient(1200px 800px at 100% 10%, var(--bg2), transparent 55%), var(--bg);
+        radial-gradient(1200px 800px at 0% 0%, var(--bg-grad1), transparent 60%),
+        radial-gradient(1200px 800px at 100% 10%, var(--bg-grad2), transparent 55%),
+        var(--bg);
       color: var(--text);
     }
-    .wrap{ max-width:1100px; margin:0 auto; padding: clamp(16px, 3vw, 28px) 16px clamp(40px, 6vw, 64px); }
 
-    /* HERO BANNER */
-    .hero{
-      position: relative; overflow:hidden; border-radius: 18px; box-shadow: var(--shadow);
-      border:1px solid rgba(245,197,66,.22);
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 28px var(--pad) calc(44px + var(--pad-b)); }
+
+    header { display: grid; gap: 8px; margin-bottom: 22px; }
+    .title {
+      display:flex; align-items:center; gap:14px;
+      font-size: clamp(1.6rem, 3.8vw, 2.2rem); font-weight: 900; letter-spacing: .25px;
+      line-height: 1.15;
+      /* Fun gold gradient text */
+      background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      text-shadow: 0 0 0 rgba(0,0,0,0);
+    }
+    .trophy {
+      width: 58px; height: 58px; border-radius: 12px; display:grid; place-items:center;
       background:
-        linear-gradient(135deg, rgba(245,197,66,.12), rgba(167,139,250,.10) 40%, rgba(245,197,66,.12)),
-        radial-gradient(600px 180px at -10% -30%, rgba(245,197,66,.18), transparent 60%),
-        radial-gradient(500px 180px at 110% 0%, rgba(167,139,250,.16), transparent 55%),
-        #0b0b0e;
+        conic-gradient(from 210deg, rgba(245,197,66,.35), rgba(245,197,66,.08) 40%, rgba(167,139,250,.2) 60%, rgba(245,197,66,.35));
+      border: 1px solid rgba(245,197,66,.5);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), var(--shadow);
+      font-size: 30px;
+      flex: 0 0 auto;
     }
-    .hero::after{ /* film-grain subtle */
-      content:""; position:absolute; inset:0; pointer-events:none; opacity:.14;
-      background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22 viewBox=%220 0 48 48%22%3E%3Ccircle cx=%226%22 cy=%226%22 r=%221%22 fill=%22%23ffffff%22/%3E%3C/svg%3E');
-      background-size: 48px 48px; mix-blend-mode: soft-light;
-    }
-    .hero-inner{ display:flex; gap:16px; align-items:center; padding: clamp(16px, 4vw, 26px); }
-    .trophy{ width: clamp(56px, 10vw, 78px); height: clamp(56px, 10vw, 78px); border-radius: 16px; display:grid; place-items:center;
-      background: conic-gradient(from 210deg, rgba(245,197,66,.38), rgba(245,197,66,.10) 40%, rgba(167,139,250,.28) 60%, rgba(245,197,66,.38));
-      border:1px solid rgba(245,197,66,.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), var(--shadow);
-      font-size: clamp(28px, 5.4vw, 36px);
-    }
-    .hero-txt{ display:grid; gap:6px; }
-    .hero-title{
-      font-weight: 1000; letter-spacing:.3px; line-height:1.05; margin:0;
-      font-size: clamp(1.9rem, 5vw, 2.7rem);
-      background: linear-gradient(180deg, var(--gold) 0%, var(--gold2) 45%, var(--gold) 100%);
-      -webkit-background-clip:text; background-clip:text; color: transparent;
-      text-shadow: 0 2px 0 rgba(0,0,0,.55), 0 18px 38px rgba(0,0,0,.55);
-    }
-    .hero-sub{ color: var(--muted); font-size: clamp(.92rem, 1.8vw, 1rem); }
+    .subtitle { color: var(--muted); font-size: .95rem; }
 
-    .ribbon{ display:flex; align-items:center; gap:10px; color: var(--gold); font-weight:800; text-transform:uppercase; letter-spacing:.14em; margin: 12px 0 16px; }
-    .ribbon .bar{ flex:1; height:2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity:.7; }
-
-    /* CARD TABLE */
-    .board{ background: var(--panel); border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow: var(--shadow); }
-    .table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
-    table{ width:100%; border-collapse: collapse; }
-    thead th{ background: linear-gradient(180deg, var(--panel2), transparent); text-align:left; padding: clamp(10px, 1.6vw, 14px); font-weight:900; font-size: clamp(1rem, 2.2vw, 1.06rem); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:1; }
-    tbody td{ padding: clamp(10px, 1.6vw, 14px); border-top:1px solid var(--border); font-size: clamp(.98rem, 2.2vw, 1.04rem); }
-    tbody tr:nth-child(even) td{ background: var(--row); }
-
-    /* Category chip styling on mobile (make category feel like a tag) */
-    @media (max-width:560px){
-      tbody td:first-child{ font-weight: 800; }
-      tbody td:last-child{ color: var(--muted); }
+    /* Divider ribbon */
+    .ribbon {
+      display:flex; align-items:center; gap:10px; color: var(--gold);
+      font-weight: 700; text-transform: uppercase; letter-spacing: .12em;
+      margin-top: 4px;
+      min-height: 24px;
     }
+    .ribbon .bar { flex:1; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: .6;
+    }
+
+    /* Section */
+    .section { margin-top: 26px; }
+    .section h2 {
+      margin: 0 0 6px; font-size: clamp(1.15rem, 3.2vw, 1.45rem);
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      text-shadow: 0 0 0 rgba(0,0,0,0);
+    }
+    .section .desc { color: var(--muted); margin-bottom: 10px; }
+
+    .controls {
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 4px; margin-bottom: 12px;
+    }
+    .pill {
+      padding: 8px 12px; border-radius: 999px; background: var(--panel);
+      border: 1px solid var(--row-border); color: var(--muted); font-size: .9rem;
+      min-height: var(--tap); display:inline-flex; align-items:center;
+    }
+    .btn-link {
+      padding: 8px 12px; border-radius: 999px;
+      background: transparent; border: 1px dashed var(--row-border); color: var(--muted);
+      cursor: pointer; min-height: var(--tap);
+    }
+    .pill.error { color: #fff; background: #3a0d0d; border-color: #5f1616; }
+    .pill.live { color: var(--green); }
+
+    .board {
+      background:
+        linear-gradient(180deg, rgba(255,215,128,.06), transparent 40%),
+        radial-gradient(400px 120px at 10% 0%, rgba(245,197,66,.12), transparent 60%),
+        var(--panel);
+      border: 1px solid var(--row-border);
+      border-radius: 18px; overflow: hidden; box-shadow: var(--shadow);
+    }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: linear-gradient(180deg, var(--panel-2), transparent);
+      text-align: left; padding: 14px 14px; font-weight: 800; font-size: 1rem;
+      border-bottom: 1px solid var(--row-border);
+      position: sticky; top: 0; z-index: 1; white-space: nowrap;
+    }
+    tbody td { padding: 14px 14px; border-top: 1px solid var(--row-border); font-size: 1rem; }
+    tbody tr:nth-child(even) td { background: var(--row-alt); }
+
+    .rank { display: inline-flex; align-items: center; gap: 8px; font-weight: 900; }
+    .medal {
+      width: 28px; height: 28px; border-radius: 999px; display:grid; place-items:center;
+      font-size: 16px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), 0 2px 6px rgba(0,0,0,.25);
+      background: linear-gradient(135deg, rgba(245,197,66,.25), rgba(245,197,66,.05));
+      border: 1px solid rgba(245,197,66,.5);
+    }
+    .medal.silver { background: linear-gradient(135deg, rgba(206,212,218,.35), rgba(206,212,218,.08)); border-color: rgba(206,212,218,.75); }
+    .medal.bronze { background: linear-gradient(135deg, rgba(205,127,50,.35), rgba(205,127,50,.08)); border-color: rgba(205,127,50,.7); }
+    .right { text-align: right; }
+    .name { font-weight: 800; }
+
+    .updated { color: var(--muted); font-size: .9rem; padding: 12px 16px 16px; }
+
+    .sort { cursor: pointer; user-select: none; display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap); }
+    .sort .arrow { opacity: .65; font-size: .9em; }
+    .sort.active { color: var(--gold); }
+    .sort.active .arrow { opacity: 1; }
+
+    /* Filmstrip accent */
+    .filmstrip {
+      display: grid; grid-auto-flow: column; gap: 6px; padding: 8px 14px; align-items: center;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), transparent);
+      border-bottom: 1px dashed rgba(245,197,66,.35);
+      font-size: .9rem; color: var(--muted);
+    }
+    .filmcell {
+      width: 12px; height: 12px; border: 1px solid rgba(255,255,255,.2); border-radius: 3px;
+      background: rgba(255,255,255,.06);
+    }
+    .filmrow { display:flex; gap:6px; }
+
+    /* Confetti for leader change */
+    .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 9999; }
+    .confetti i {
+      position: absolute; width: 10px; height: 16px; opacity: 0.9;
+      transform: translateY(-20vh) rotate(0deg);
+      animation: fall 1400ms linear forwards;
+      will-change: transform;
+    }
+    @keyframes fall { 0% { transform: translateY(-20vh) rotate(0deg); } 100% { transform: translateY(120vh) rotate(540deg); } }
+
+    /* Mobile tweaks */
+    @media (max-width: 560px) {
+      html, body { font-size: 16px; }
+      thead th, tbody td { padding: 12px 12px; }
+      .title { gap: 10px; }
+      .trophy { width: 52px; height: 52px; font-size: 26px; }
+      .controls { gap: 8px; }
+      .pill { padding: 8px 10px; }
+    }
+  
+  /* --- Entries-specific CSS (overrides) --- */
+  /* Keep the same header block used on index */
+  header{ display:grid; gap:8px; margin-bottom:22px; }
+  .subtitle{ color: var(--muted); font-size:.95rem; }
+
+  /* Make picks bold like the 'Winner' column in the screenshot */
+  tbody td:nth-child(2){ font-weight:800; }
+
+  /* Remove header nowrap on small screens and wrap long cell text */
+  @media (max-width: 680px){
+    thead th{ white-space: normal !important; }
+    tbody td{ white-space: normal; overflow-wrap:anywhere; word-break:break-word; hyphens:auto; }
+    .table-wrap{ overflow-x: hidden; }
+  }
+
+  /* Slightly larger row spacing for readability on mobile */
+  tbody td{ line-height: 1.35; }
   </style>
 </head>
 <body>
   <div class=\"wrap\">
-    <section class=\"hero\" aria-label=\"Header banner\">
-      <div class=\"hero-inner\">
+    <header>
+      <div class=\"title\" aria-label=\"BB&D+E Oscars Bracket\">
         <div class=\"trophy\" aria-hidden=\"true\">🏆</div>
-        <div class=\"hero-txt\">
-          <h1 class=\"hero-title\">Kim's Oscar Picks</h1>
-          <div class=\"hero-sub\">Part of BB&D+E Oscars Bracket</div>
+        <span>Kim's Oscar Picks</span>
+      </div>
+      <div class=\"subtitle\">Part of BB&D+E Oscars Bracket</div>
+      <div class=\"ribbon\"><div class=\"bar\"></div><span>Academy Awards</span><div class=\"bar\"></div></div>
+    </header>
+
+    <section class=\"section\">
+      <div class=\"board\" role=\"region\" aria-label=\"Oscar Picks\">
+        <div class=\"filmstrip\">
+          <div class=\"filmrow\" aria-hidden=\"true\">
+            <div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div>
+            <div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div>
+            <div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div>
+          </div>
+          <div style=\"justify-self:end; font-weight:600; color:var(--gold);\">🎬 Picks</div>
+        </div>
+        <div class=\"table-wrap\">
+          <table>
+            <thead>
+              <tr><th>Category</th><th>Pick</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Actor in a Leading Role</td><td>Michael B. Jordan - Sinners</td></tr>
+              <tr><td>Actor in a Supporting Role</td><td>Sean Penn - One Battle After Another</td></tr>
+              <tr><td>Actress in a Leading Role</td><td>Jessie Buckley - Hamnet</td></tr>
+              <tr><td>Actress in a Supporting Role</td><td>Amy Madigan - Weapons</td></tr>
+              <tr><td>Animated Feature Film</td><td>K-Pop Demon Hunters</td></tr>
+              <tr><td>Animated Short Film</td><td>Butterfly</td></tr>
+              <tr><td>Cinematography</td><td>Sinners</td></tr>
+              <tr><td>Costume Design</td><td>Frankenstein - Kate Hawley</td></tr>
+              <tr><td>Directing</td><td>Paul Anderson - One Battle After Another</td></tr>
+              <tr><td>Documentary Feature Film</td><td>The Perfect Neighbor</td></tr>
+              <tr><td>Documentary Short Film</td><td>All the Empty Rooms</td></tr>
+              <tr><td>Film Editing</td><td>One Battle After Another</td></tr>
+              <tr><td>International Feature Film</td><td>Sentimental Value</td></tr>
+              <tr><td>Makeup & Hairstyling</td><td>Sinners</td></tr>
+              <tr><td>Music (Original Score)</td><td>One Battle After Another</td></tr>
+              <tr><td>Music (Original Song)</td><td>Golden - K-Pop Demon Hunters</td></tr>
+              <tr><td>Best Picture</td><td>One Battle After Another</td></tr>
+              <tr><td>Production Design</td><td>Frankenstein</td></tr>
+              <tr><td>Live Action Short Film</td><td>Jane Austen's Period Drama</td></tr>
+              <tr><td>Sound</td><td>F1</td></tr>
+              <tr><td>Visual Effects</td><td>Avatar: Fire and Ash</td></tr>
+              <tr><td>Writing (Adapted Screenplay)</td><td>Frankenstein</td></tr>
+              <tr><td>Writing (Original Screenplay)</td><td>Sinners</td></tr>
+              <tr><td>Casting</td><td>One Battle After Another - Cassandra Kulukundis</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
-
-    <div class=\"ribbon\"><div class=\"bar\"></div><span>Academy Awards</span><div class=\"bar\"></div></div>
-
-    <div class=\"board\">
-      <div class=\"table-wrap\">
-        <table>
-          <thead>
-            <tr><th>Category</th><th>Pick</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Actor in a Leading Role</td><td>Michael B. Jordan - Sinners</td></tr>
-            <tr><td>Actor in a Supporting Role</td><td>Sean Penn - One Battle After Another</td></tr>
-            <tr><td>Actress in a Leading Role</td><td>Jessie Buckley - Hamnet</td></tr>
-            <tr><td>Actress in a Supporting Role</td><td>Amy Madigan - Weapons</td></tr>
-            <tr><td>Animated Feature Film</td><td>K-Pop Demon Hunters</td></tr>
-            <tr><td>Animated Short Film</td><td>Butterfly</td></tr>
-            <tr><td>Cinematography</td><td>Sinners</td></tr>
-            <tr><td>Costume Design</td><td>Frankenstein - Kate Hawley</td></tr>
-            <tr><td>Directing</td><td>Paul Anderson - One Battle After Another</td></tr>
-            <tr><td>Documentary Feature Film</td><td>The Perfect Neighbor</td></tr>
-            <tr><td>Documentary Short Film</td><td>All the Empty Rooms</td></tr>
-            <tr><td>Film Editing</td><td>One Battle After Another</td></tr>
-            <tr><td>International Feature Film</td><td>Sentimental Value</td></tr>
-            <tr><td>Makeup & Hairstyling</td><td>Sinners</td></tr>
-            <tr><td>Music (Original Score)</td><td>One Battle After Another</td></tr>
-            <tr><td>Music (Original Song)</td><td>Golden - K-Pop Demon Hunters</td></tr>
-            <tr><td>Best Picture</td><td>One Battle After Another</td></tr>
-            <tr><td>Production Design</td><td>Frankenstein</td></tr>
-            <tr><td>Live Action Short Film</td><td>Jane Austen's Period Drama</td></tr>
-            <tr><td>Sound</td><td>F1</td></tr>
-            <tr><td>Visual Effects</td><td>Avatar: Fire and Ash</td></tr>
-            <tr><td>Writing (Adapted Screenplay)</td><td>Frankenstein</td></tr>
-            <tr><td>Writing (Original Screenplay)</td><td>Sinners</td></tr>
-            <tr><td>Casting</td><td>One Battle After Another - Cassandra Kulukundis</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
   </div>
 </body>
 </html>
