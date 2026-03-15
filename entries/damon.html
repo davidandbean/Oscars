@@ -1,189 +1,98 @@
 <!DOCTYPE html>
-<html lang=\"en\">
+<html lang="en">
 <head>
-  <meta charset=\"utf-8\" />
-  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Damon's Oscar Picks — BB&D+E Oscars Bracket</title>
-  <meta name=\"description\" content=\"Damon's selections for the Oscars bracket\"/>
+  <meta name="description" content="Damon's Oscar Picks selections for the Oscars bracket"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
   <style>
-:root {
-  color-scheme: light dark;
-  --bg:#0a0a0a; --bg-grad1: rgba(245,197,66,.10); --bg-grad2: rgba(160,82,45,.10);
-  --panel:#111317; --panel-2:#171a20; --text:#f6f7fb; --muted:#aab1bc;
-  --gold:#f5c542; --gold-2:#ffdf7e; --row-alt:#0c0f14; --row-border:#232832;
-  --shadow: 0 14px 40px rgba(0,0,0,.45);
-}
-@media (prefers-color-scheme: light){
-  :root{ --bg:#faf8f2; --bg-grad1: rgba(245,197,66,.16); --bg-grad2: rgba(160,82,45,.12); --panel:#ffffff; --panel-2:#fbfaf6; --text:#111317; --muted:#4f5966; --row-alt:#fffdf7; --row-border:#ece6d8; --shadow: 0 10px 28px rgba(0,0,0,.08); }
-}
-html, body { height: 100%; }
-body{
-  margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  background:
-    radial-gradient(1200px 800px at 0% 0%, var(--bg-grad1), transparent 60%),
-    radial-gradient(1200px 800px at 100% 10%, var(--bg-grad2), transparent 55%),
-    var(--bg);
-  color: var(--text);
-}
-.wrap{ max-width:1100px; margin:0 auto; padding:28px 16px 56px; }
-
-/* Banner */
-.hero{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom: 14px; }
-.title{
-  display:flex; align-items:center; gap:14px;
-  font-size: clamp(1.8rem, 4.6vw, 2.6rem); font-weight: 1000; letter-spacing:.25px; line-height:1.15;
-  background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-.trophy{
-  width:58px; height:58px; border-radius:12px; display:grid; place-items:center; font-size:30px;
-  background: conic-gradient(from 210deg, rgba(245,197,66,.35), rgba(245,197,66,.08) 40%, rgba(167,139,250,.2) 60%, rgba(245,197,66,.35));
-  border:1px solid rgba(245,197,66,.5);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), var(--shadow);
-}
-.back{ text-decoration:none; color: var(--muted); border:1px solid var(--row-border); background:var(--panel); padding:10px 14px; border-radius:999px; }
-.back:hover{ color:var(--gold); border-color: rgba(245,197,66,.5); }
-.subtitle{ color: var(--muted); font-size:.95rem; }
-.ribbon{ display:flex; align-items:center; gap:10px; color: var(--gold); font-weight:700; text-transform:uppercase; letter-spacing:.12em; margin: 6px 0 12px; }
-.ribbon .bar{ flex:1; height:2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity:.6; }
-
-/* Accordion Card */
-.board{
-  background:
-    linear-gradient(180deg, rgba(255,215,128,.06), transparent 40%),
-    radial-gradient(400px 120px at 10% 0%, rgba(245,197,66,.12), transparent 60%),
-    var(--panel);
-  border:1px solid var(--row-border);
-  border-radius:18px; overflow:hidden; box-shadow:var(--shadow);
-}
-.filmstrip{ display:grid; grid-auto-flow:column; gap:6px; padding:8px 14px; align-items:center; background: linear-gradient(180deg, rgba(255,255,255,.04), transparent); border-bottom: 1px dashed rgba(245,197,66,.35); font-size:.9rem; color: var(--muted); }
-.filmrow{ display:flex; gap:6px; }
-.filmcell{ width:12px; height:12px; border:1px solid rgba(255,255,255,.2); border-radius:3px; background: rgba(255,255,255,.06); }
-
-/* Details/summary accordion items */
-.list{ margin:0; padding:0; }
-.details{ border-top:1px solid var(--row-border); list-style:none; }
-.details:first-child{ border-top:none; }
-summary{
-  cursor:pointer; position:relative; padding:14px 18px; outline:none;
-  display:flex; align-items:center; gap:12px; list-style:none; user-select:none;
-}
-summary .cat{ font-weight:800; }
-summary::marker{ display:none; content:""; }
-/* chevron */
-summary::after{
-  content:"›"; position:absolute; right:18px; transform: rotate(-90deg); color: var(--gold); transition: transform .18s ease, color .18s ease;
-}
-.details:not([open]) summary::after{ transform: rotate(90deg); color: var(--muted); }
-
-.content{ padding: 0 18px 16px 18px; color: var(--text); }
-.pick{ font-weight:500; }
-
-/* Alternate row background */
-.details:nth-child(even) summary{ background: var(--row-alt); }
-
-/* Mobile: ensure wrapping and large tap targets */
-@media (max-width: 680px){
-  .title{ font-size: clamp(1.6rem, 6vw, 2.2rem); }
-  .trophy{ width:52px; height:52px; font-size:26px; }
-  summary, .content{ white-space: normal; overflow-wrap:anywhere; word-break:break-word; hyphens:auto; }
-}
-
-
-/* ===== App-look mobile redesign ===== */
-:root{
-  --app-bg: #0b0c0f;
-  --card: #14171c;
-  --card-2:#191d23;
-  --text-strong:#f7f8fb; --text:#e6e9ef; --muted:#a8b0bd;
-  --gold:#f5c542; --border:#262c36; --glow:0 12px 28px rgba(0,0,0,.45);
-}
-
-/* Make body feel like an app canvas */
-body{ background: linear-gradient(180deg, rgba(245,197,66,.08), transparent 30%), var(--app-bg); color:var(--text); }
-
-/* Header becomes compact app bar */
-.hero{ position:sticky; top:0; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; margin:-8px -12px 12px; background: linear-gradient(180deg, rgba(20,23,28,.95), rgba(20,23,28,.92)); backdrop-filter: blur(6px); border-bottom:1px solid var(--border); }
-.title{ gap:10px; font-size:1.35rem; font-weight:1000; letter-spacing:.2px; background: linear-gradient(90deg, var(--gold), #ffe38b, var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent; }
-.trophy{ width:40px; height:40px; font-size:20px; border-radius:10px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), var(--glow); }
-.back{ text-decoration:none; color: var(--text); border:1px solid var(--border); background:linear-gradient(180deg, var(--card-2), var(--card)); padding:9px 12px; border-radius:12px; font-weight:700; }
-.back:hover{ color:var(--gold); border-color:#3b4350; }
-.ribbon{ display:none; }
-
-/* Remove filmstrip on mobile entirely; desktop keep subtle */
-.filmstrip{ display:none; }
-
-/* Board container -> transparent to feel native */
-.board{ background: transparent; border:none; box-shadow:none; }
-
-/* Card (pill) design */
-.list{ display:grid; grid-template-columns:1fr; gap:10px; margin:0; padding:0; }
-.details{ list-style:none; border:1px solid var(--border); border-radius:18px; overflow:hidden; background: linear-gradient(180deg, var(--card-2), var(--card)); box-shadow: var(--glow); margin:0; }
-summary{ padding:16px 14px 10px; display:block; }
-summary .cat{ color:var(--text-strong); font-size:1.1rem; font-weight:900; letter-spacing:.2px; }
-summary::after{ display:none; }
-.content{ padding: 0 14px 14px; color:var(--text); }
-.pick{ font-size:1.06rem; line-height:1.6; }
-
-/* App typography scale */
-html{ -webkit-text-size-adjust: 100% !important; }
-@media (max-width: 768px){
-  body{ font-size: 20.5px; }
-}
-@media (max-width: 360px){ body{ font-size: 21px; } }
-
-/* Safe wrapping + no horizontal scroll */
-summary, .content{ white-space:normal; overflow-wrap:anywhere; word-break:break-word; hyphens:auto; }
-
-/* Give the whole page some breathing room */
-.wrap{ padding:14px 12px 64px; }
-
-/* Bottom shine footer spacing (if any) */
-
-
-</style>
+    :root{
+      --bg: #0a0a0a; --surface:#10131a; --surface-2:#151a22; --text:#f7f9fc; --muted:#a7b0bd;
+      --gold-1:#f5c542; --gold-2:#ffe28a; --gold-3:#b38728; --accent:#ffb200;
+      --border:#242b36; --row-alt:#0d1118; --shadow: 0 18px 50px rgba(0,0,0,.45);
+      color-scheme: light dark;
+    }
+    @media (prefers-color-scheme: light){
+      :root{ --bg:#faf8f2; --surface:#ffffff; --surface-2:#fbfaf6; --text:#121419; --muted:#4f5966; --row-alt:#fffdf7; --border:#e8e1d4; --shadow: 0 14px 34px rgba(0,0,0,.08); }
+    }
+    html,body{height:100%}
+    body{
+      margin:0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background:
+        radial-gradient(1200px 900px at 0% 0%, rgba(245,197,66,.12), transparent 60%),
+        radial-gradient(1200px 900px at 100% 10%, rgba(160,82,45,.12), transparent 55%),
+        var(--bg);
+      color:var(--text);
+    }
+    .wrap{max-width:980px; margin:0 auto; padding:18px clamp(12px,3vw,24px) 72px;}
+    .banner{ position: sticky; top: 0; z-index: 10; display:grid; place-items:center; padding:16px clamp(10px,3vw,18px); margin:0 calc(-1 * clamp(12px,3vw,24px)) 18px; background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.06)), linear-gradient(90deg, var(--gold-3), var(--gold-1), var(--gold-2), var(--gold-1), var(--gold-3)); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), var(--shadow); border-bottom: 1px solid rgba(0,0,0,.25); }
+    .banner-inner{ text-align:center; }
+    .title{ display:inline-flex; align-items:center; gap:12px; font-size: clamp(1.4rem, 4.8vw, 2.2rem); font-weight: 900; letter-spacing:.25px; line-height:1.1; color: #1a1200; filter: drop-shadow(0 1px 0 rgba(255,255,255,.35)); }
+    .trophy{ width:42px; height:42px; border-radius:10px; display:grid; place-items:center; font-size:22px; background: linear-gradient(180deg, #ffeaa5, #ffd768); border:1px solid rgba(0,0,0,.15); box-shadow: inset 0 0 0 1px rgba(255,255,255,.45), 0 10px 20px rgba(0,0,0,.15); }
+    .sub{ margin-top:6px; color:#3b2a00; font-weight:700; text-transform:uppercase; letter-spacing:.14em; font-size:.8rem; opacity:.9; }
+    .bar-actions{ margin-top:10px; display:flex; justify-content:center; }
+    .back{ text-decoration:none; color:#3b2a00; background: #fff1c7; border:1px solid rgba(0,0,0,.18); padding:10px 14px; border-radius:999px; font-weight:800; transition:.2s ease; }
+    .back:hover{ transform: translateY(-1px); box-shadow:0 6px 16px rgba(0,0,0,.12); color:#1f1400; }
+    .board{ margin-top:10px; }
+    .list{ display:grid; grid-template-columns:1fr; gap:12px; margin:0; padding:0; list-style:none; }
+    details{ border:1px solid var(--border); border-radius:16px; overflow:hidden; background: linear-gradient(180deg, var(--surface-2), var(--surface)); box-shadow: var(--shadow); }
+    summary{ cursor:pointer; outline:none; padding:16px 16px 10px; display:flex; align-items:center; gap:10px; }
+    summary .cat{ font-weight:900; letter-spacing:.2px; font-size:1.05rem; }
+    .content{ padding: 0 16px 16px; color:var(--text); }
+    .pick{ font-size:1.06rem; line-height:1.6; }
+    details + details{ position:relative; }
+    details + details::before{ content:""; position:absolute; top:-6px; left:12px; right:12px; height:1px; background: linear-gradient(90deg, transparent, rgba(255,215,128,.35), transparent); filter: blur(.5px); }
+    html{ -webkit-text-size-adjust: 100% !important; }
+    @media (max-width: 768px){ body{ font-size: 20px; } }
+    @media (max-width: 380px){ body{ font-size: 21px; } }
+    summary, .content{ white-space: normal; overflow-wrap:anywhere; word-break: break-word; hyphens:auto; }
+    @media (min-width: 900px){ .list{ grid-template-columns: 1fr 1fr; } }
+  </style>
 </head>
 <body>
-  <div class=\"wrap\">
-    <div class=\"hero\">
-      <div class=\"title\"><div class=\"trophy\" aria-hidden=\"true\">🏆</div><span>Damon's Oscar Picks</span></div>
-      <a class=\"back\" href="https://davidandbean.github.io/Oscars/">← Back to leaderboard</a>
-    </div>
-    <div class=\"ribbon\"><div class=\"bar\"></div><span>Academy Awards</span><div class=\"bar\"></div></div>
-
-    <div class=\"board\">
-      <div class=\"filmstrip\">
-        <div class=\"filmrow\" aria-hidden=\"true\"><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div></div>
-        <div style=\"justify-self:end; font-weight:600; color:var(--gold);\">🎬 Picks</div>
+  <div class="wrap">
+    <header class="banner" role="banner">
+      <div class="banner-inner">
+        <div class="title"><span class="trophy" aria-hidden="true">🏆</span> <span>Damon's Oscar Picks</span></div>
+        <div class="sub" aria-hidden="true">Academy Awards</div>
+        <div class="bar-actions">
+          <a class="back" href="https://davidandbean.github.io/Oscars/">← Back to leaderboard</a>
+        </div>
       </div>
-      <ul class=\"list\">
-        <li class="details"><details open><summary><span class="cat">Actor in a Leading Role</span></summary><div class="content"><div class="pick">Michael B. Jordan - Sinners</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Actor in a Supporting Role</span></summary><div class="content"><div class="pick">Delroy Lindo - Sinners</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Actress in a Leading Role</span></summary><div class="content"><div class="pick">Jessie Buckley - Hamnet</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Actress in a Supporting Role</span></summary><div class="content"><div class="pick">Wunmi Mosaku - Sinners</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Animated Feature Film</span></summary><div class="content"><div class="pick">K-Pop Demon Hunters</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Animated Short Film</span></summary><div class="content"><div class="pick">Butterfly</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Cinematography</span></summary><div class="content"><div class="pick">One Battle After Another</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Costume Design</span></summary><div class="content"><div class="pick">Frankenstein - Kate Hawley</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Directing</span></summary><div class="content"><div class="pick">Paul Anderson - One Battle After Another</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Documentary Feature Film</span></summary><div class="content"><div class="pick">The Perfect Neighbor</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Documentary Short Film</span></summary><div class="content"><div class="pick">All the Empty Rooms</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Film Editing</span></summary><div class="content"><div class="pick">One Battle After Another</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">International Feature Film</span></summary><div class="content"><div class="pick">Sentimental Value</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Makeup &amp; Hairstyling</span></summary><div class="content"><div class="pick">Frankenstein</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Music (Original Score)</span></summary><div class="content"><div class="pick">Sinners</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Music (Original Song)</span></summary><div class="content"><div class="pick">Golden - K-Pop Demon Hunters</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Best Picture</span></summary><div class="content"><div class="pick">Sinners</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Production Design</span></summary><div class="content"><div class="pick">Frankenstein</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Live Action Short Film</span></summary><div class="content"><div class="pick">Two People Exchanging Saliva</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Sound</span></summary><div class="content"><div class="pick">F1</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Visual Effects</span></summary><div class="content"><div class="pick">Avatar: Fire and Ash</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Writing (Adapted Screenplay)</span></summary><div class="content"><div class="pick">One Battle After Another</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Writing (Original Screenplay)</span></summary><div class="content"><div class="pick">Sinners</div></div></details></li>
-        <li class="details"><details open><summary><span class="cat">Casting</span></summary><div class="content"><div class="pick">Sinners - Francine Maisler</div></div></details></li>
-      </ul>
-    </div>
+    </header>
+    <main class="board" role="main">
+      
+<ul class="list">
+<li><details open><summary><span class="cat">Actor in a Leading Role</span></summary><div class="content"><div class="pick">Michael B. Jordan - Sinners</div></div></details></li>
+<li><details open><summary><span class="cat">Actor in a Supporting Role</span></summary><div class="content"><div class="pick">Delroy Lindo - Sinners</div></div></details></li>
+<li><details open><summary><span class="cat">Actress in a Leading Role</span></summary><div class="content"><div class="pick">Jessie Buckley - Hamnet</div></div></details></li>
+<li><details open><summary><span class="cat">Actress in a Supporting Role</span></summary><div class="content"><div class="pick">Wunmi Mosaku - Sinners</div></div></details></li>
+<li><details open><summary><span class="cat">Animated Feature Film</span></summary><div class="content"><div class="pick">K-Pop Demon Hunters</div></div></details></li>
+<li><details open><summary><span class="cat">Animated Short Film</span></summary><div class="content"><div class="pick">Butterfly</div></div></details></li>
+<li><details open><summary><span class="cat">Cinematography</span></summary><div class="content"><div class="pick">One Battle After Another</div></div></details></li>
+<li><details open><summary><span class="cat">Costume Design</span></summary><div class="content"><div class="pick">Frankenstein - Kate Hawley</div></div></details></li>
+<li><details open><summary><span class="cat">Directing</span></summary><div class="content"><div class="pick">Paul Anderson - One Battle After Another</div></div></details></li>
+<li><details open><summary><span class="cat">Documentary Feature Film</span></summary><div class="content"><div class="pick">The Perfect Neighbor</div></div></details></li>
+<li><details open><summary><span class="cat">Documentary Short Film</span></summary><div class="content"><div class="pick">All the Empty Rooms</div></div></details></li>
+<li><details open><summary><span class="cat">Film Editing</span></summary><div class="content"><div class="pick">One Battle After Another</div></div></details></li>
+<li><details open><summary><span class="cat">International Feature Film</span></summary><div class="content"><div class="pick">Sentimental Value</div></div></details></li>
+<li><details open><summary><span class="cat">Makeup & Hairstyling</span></summary><div class="content"><div class="pick">Frankenstein</div></div></details></li>
+<li><details open><summary><span class="cat">Music (Original Score)</span></summary><div class="content"><div class="pick">Sinners</div></div></details></li>
+<li><details open><summary><span class="cat">Music (Original Song)</span></summary><div class="content"><div class="pick">Golden - K-Pop Demon Hunters</div></div></details></li>
+<li><details open><summary><span class="cat">Best Picture</span></summary><div class="content"><div class="pick">Sinners</div></div></details></li>
+<li><details open><summary><span class="cat">Production Design</span></summary><div class="content"><div class="pick">Frankenstein</div></div></details></li>
+<li><details open><summary><span class="cat">Live Action Short Film</span></summary><div class="content"><div class="pick">Two People Exchanging Saliva</div></div></details></li>
+<li><details open><summary><span class="cat">Sound</span></summary><div class="content"><div class="pick">F1</div></div></details></li>
+<li><details open><summary><span class="cat">Visual Effects</span></summary><div class="content"><div class="pick">Avatar: Fire and Ash</div></div></details></li>
+<li><details open><summary><span class="cat">Writing (Adapted Screenplay)</span></summary><div class="content"><div class="pick">One Battle After Another</div></div></details></li>
+<li><details open><summary><span class="cat">Writing (Original Screenplay)</span></summary><div class="content"><div class="pick">Sinners</div></div></details></li>
+<li><details open><summary><span class="cat">Casting</span></summary><div class="content"><div class="pick">Sinners - Francine Maisler</div></div></details></li>
+</ul>
+
+    </main>
   </div>
 </body>
 </html>
