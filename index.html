@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>BB&amp;D+E Oscars Bracket — Live Leaderboard</title>
-  <meta name="description" content="Live, auto-updating Oscars bracket leaderboard with tiebreakers. Sortable, mobile-friendly, and Oscar-themed!" />
+  <meta name="description" content="Live, auto-updating Oscars bracket leaderboard with tiebreakers and winners. Sortable, mobile-friendly, and Oscar-themed!" />
   <style>
     :root {
       color-scheme: light dark;
@@ -111,6 +111,11 @@
       padding: 8px 12px; border-radius: 999px; background: var(--panel);
       border: 1px solid var(--row-border); color: var(--muted); font-size: .9rem;
       min-height: var(--tap); display:inline-flex; align-items:center;
+    }
+    .btn-link {
+      padding: 8px 12px; border-radius: 999px;
+      background: transparent; border: 1px dashed var(--row-border); color: var(--muted);
+      cursor: pointer; min-height: var(--tap);
     }
     .pill.error { color: #fff; background: #3a0d0d; border-color: #5f1616; }
     .pill.live { color: var(--green); }
@@ -273,6 +278,44 @@
         </div>
       </div>
     </section>
+
+    <!-- ===== Oscar Winners Section ===== -->
+    <section id="winnersSection" class="section" hidden>
+      <h2>🏆 Oscar Winners (Live)</h2>
+      <div class="desc">Appears in the order winners are confirmed tonight (new winners append below the last one).</div>
+
+      <div class="controls">
+        <div class="pill" id="countWinners">—</div>
+        <div class="pill" id="winnersStatus">—</div>
+        <button id="resetWinners" class="btn-link" type="button" title="Reset the display order if needed">Reset order</button>
+      </div>
+
+      <div class="board" role="region" aria-label="Oscar Winners">
+        <div class="filmstrip">
+          <div class="filmrow" aria-hidden="true">
+            <div class="filmcell"></div><div class="filmcell"></div><div class="filmcell"></div>
+            <div class="filmcell"></div><div class="filmcell"></div><div class="filmcell"></div>
+            <div class="filmcell"></div><div class="filmcell"></div><div class="filmcell"></div>
+          </div>
+          <div style="justify-self:end; font-weight:600; color:var(--gold);">🎬 Live</div>
+        </div>
+
+        <div class="table-wrap">
+          <table id="tableWinners">
+            <thead>
+              <tr>
+                <th><span>Category</span></th>
+                <th><span>Winner</span></th>
+                <th class="hide-sm"><span>Notes</span></th>
+              </tr>
+            </thead>
+            <tbody id="bodyWinners">
+              <tr><td colspan="3" style="padding:24px;">Waiting for winners…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   </div>
 
   <div id="confetti" class="confetti" aria-hidden="true"></div>
@@ -281,6 +324,7 @@
     // ===== Configuration =====
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdf-pBP_AyYyPgagUN1qXI5hCTLYajF473HMQpbeTG9JDymQA970RNg-2ymgJqmw_Cj3S2w_05rSvL/pub?gid=579714765&single=true&output=csv";
     const POLL_MS = 30000; // 30s
+    const WINNERS_ORDER_KEY = "oscars_winners_order_v1"; // localStorage key for the order winners are revealed
 
     // Synonyms to map headers reliably
     const MAIN_SYNONYMS = {
@@ -290,6 +334,12 @@
     const TB_SYNONYMS = {
       name: ["participant","name","player","entry","team","user","contestant"],
       tbScore: ["tb score","tiebreaker score","score","points","pts"] // your TB table = Contestant + Score
+    };
+    // Winners: flexible names
+    const WIN_SYNONYMS = {
+      category: ["category","award","award name","oscar","category name"],
+      winner: ["winner","won","result","selected","pick"],
+      notes: ["notes","comment","remarks","extra"]
     };
 
     // ===== Utilities =====
@@ -304,6 +354,12 @@
     }
     function setTBStatus(text, isError=false) {
       const pill = byId("tbStatus");
+      pill.textContent = text;
+      pill.classList.toggle("error", isError);
+      pill.classList.toggle("live", !isError && text.toLowerCase() === "live");
+    }
+    function setWinnersStatus(text, isError=false) {
+      const pill = byId("winnersStatus");
       pill.textContent = text;
       pill.classList.toggle("error", isError);
       pill.classList.toggle("live", !isError && text.toLowerCase() === "live");
@@ -357,22 +413,32 @@
       return map;
     }
 
-    // Detect typical "section title" rows like "BRACKET SCORES" or "TIEBREAKER SCORES"
+    // Detect typical "section title" rows like "BRACKET SCORES" / "TIEBREAKER SCORES" / "OSCAR WINNERS"
     function isSectionTitleRow(cells) {
       const nonEmpty = cells.filter(c => String(c).trim() !== "");
       if (nonEmpty.length !== 1) return false;
       const only = String(nonEmpty[0]).trim().toLowerCase();
-      return /(tiebreaker|tie\s*breaker|bracket).*(score|scores)|^(tiebreaker|bracket)\s*scores?$/.test(only);
+      return /(tiebreaker|tie\s*breaker|bracket|oscar\s*winners?).*(score|scores)?$/.test(only) ||
+             /^(tiebreaker|bracket)\s*scores?$/.test(only) ||
+             /^oscar\s*winners?$/.test(only);
+    }
+
+    function rowHasAny(cells, terms) {
+      const l = toLower(cells);
+      return terms.some(t => l.includes(t));
     }
 
     function isLikelyHeaderRow(cells) {
       const l = toLower(cells);
-      const hasName = MAIN_SYNONYMS.name.some(s => l.includes(s));
+      const hasContestant = MAIN_SYNONYMS.name.some(s => l.includes(s));
       const hasScore = MAIN_SYNONYMS.score.some(s => l.includes(s)) || TB_SYNONYMS.tbScore.some(s => l.includes(s));
-      return hasName && hasScore;
+      const hasCategory = WIN_SYNONYMS.category.some(s => l.includes(s));
+      const hasWinner = WIN_SYNONYMS.winner.some(s => l.includes(s));
+      return (hasContestant && hasScore) || (hasCategory && hasWinner);
     }
 
-    function splitTables(rows) {
+    // Split into N tables: returns array [{header, body}, ...]
+    function splitAllTables(rows) {
       const headerIdxs = [];
       for (let i=0;i<rows.length;i++) {
         const r = rows[i];
@@ -380,16 +446,13 @@
         if (isLikelyHeaderRow(r)) headerIdxs.push(i);
       }
       if (!headerIdxs.length) throw new Error("No header rows detected");
-      if (headerIdxs.length === 1) {
-        return { main: { header: rows[headerIdxs[0]], body: rows.slice(headerIdxs[0]+1) }, tb: null };
+      const tables = [];
+      for (let h = 0; h < headerIdxs.length; h++) {
+        const start = headerIdxs[h];
+        const end = (h+1 < headerIdxs.length) ? headerIdxs[h+1] : rows.length;
+        tables.push({ header: rows[start], body: rows.slice(start+1, end) });
       }
-      const h1 = headerIdxs[0], h2 = headerIdxs[1];
-      let end1 = h2, end2 = rows.length;
-      if (headerIdxs.length > 2) end2 = headerIdxs[2];
-      return {
-        main: { header: rows[h1], body: rows.slice(h1+1, end1) },
-        tb:   { header: rows[h2], body: rows.slice(h2+1, end2) }
-      };
+      return tables;
     }
 
     function medalFor(rank) {
@@ -402,11 +465,12 @@
     // ===== State =====
     const state = {
       main: { records: [], sort: { key: "score", dir: "desc" } },
-      tb:   { records: [], sort: { key: "tbScore", dir: "desc" }, columns: [] }
+      tb:   { records: [], sort: { key: "tbScore", dir: "desc" }, columns: [] },
+      winners: { records: [] }
     };
     let lastLeader = localStorage.getItem("oscars_last_leader") || "";
 
-    // ===== Ranking & Rendering =====
+    // ===== Ranking & Rendering (Main) =====
     function rankByScore(records) {
       records.sort((a,b) => (b.score - a.score) || a.name.localeCompare(b.name));
       let lastScore = null, lastRank = 0;
@@ -444,6 +508,7 @@
       byId("countMain").textContent = `${rows.length} shown`;
     }
 
+    // ===== Rendering (Tiebreaker) =====
     function buildTBHeader() {
       const head = byId("headTB");
       head.innerHTML = `
@@ -466,7 +531,6 @@
         return cmp * mul;
       });
 
-      // If sorting by tbScore, recompute ranks (higher is better)
       if (key === "tbScore") {
         rows.sort((a,b) => (b.tbScore - a.tbScore) || a.name.localeCompare(b.name));
         let last = null, lastRank = 0;
@@ -513,7 +577,7 @@
 
     // ===== Data mapping =====
     function cleanBodyRows(body) {
-      // Drop empty rows and "section title" rows like "TIEBREAKER SCORES"
+      // Drop empty rows and "section title" rows like "TIEBREAKER SCORES" / "OSCAR WINNERS"
       return body.filter(r => r && r.some(c => String(c).trim() !== ""))
                  .filter(r => !isSectionTitleRow(r));
     }
@@ -542,10 +606,25 @@
         name: String(r[map.nameIdx] ?? "").trim(),
         tbScore: numify(r[map.tbScoreIdx], 0)
       }));
-      // Default TB ranks (Option A: higher wins)
       recs.sort((a,b) => (b.tbScore - a.tbScore) || a.name.localeCompare(b.name));
       let last = null, lastRank = 0;
       recs.forEach((r,i) => { if (r.tbScore === last) r.rank = lastRank; else { r.rank=i+1; lastRank=r.rank; last=r.tbScore; }});
+      return recs;
+    }
+
+    function mapWinnersRecords(header, body) {
+      const map = buildMapper(header, WIN_SYNONYMS);
+      if (map.categoryIdx < 0 || map.winnerIdx < 0) {
+        // If headers aren't present, skip this table gracefully
+        return [];
+      }
+      const rows = cleanBodyRows(body);
+      // Only include rows with a non-empty Winner
+      const recs = rows.map(r => ({
+        category: String(r[map.categoryIdx] ?? "").trim(),
+        winner: String(r[map.winnerIdx] ?? "").trim(),
+        notes: map.notesIdx >= 0 ? String(r[map.notesIdx] ?? "").trim() : ""
+      })).filter(x => x.category !== "" && x.winner !== "");
       return recs;
     }
 
@@ -554,6 +633,48 @@
       const res = await fetch(url, { cache: "no-store" });
       if (!res.ok) throw new Error(`Fetch failed: HTTP ${res.status}`);
       return await res.text();
+    }
+
+    function updateWinnersOrder(current) {
+      // current: array of {category, winner, notes}
+      const orderRaw = localStorage.getItem(WINNERS_ORDER_KEY);
+      let order = [];
+      try { order = orderRaw ? JSON.parse(orderRaw) : []; } catch { order = []; }
+
+      const currentMap = Object.create(null);
+      current.forEach(r => { currentMap[r.category] = r; });
+
+      // Keep existing order but drop categories that no longer have winners
+      order = order.filter(cat => currentMap[cat]);
+
+      // Append new categories (new winners) at the end
+      for (const r of current) {
+        if (!order.includes(r.category)) order.push(r.category);
+      }
+
+      localStorage.setItem(WINNERS_ORDER_KEY, JSON.stringify(order));
+
+      // Return records arranged by stored order
+      return order.map(cat => currentMap[cat]).filter(Boolean);
+    }
+
+    function renderWinners(records) {
+      const body = byId("bodyWinners");
+      body.innerHTML = "";
+      if (!records.length) {
+        body.innerHTML = `<tr><td colspan="3" style="padding:24px;">Waiting for winners…</td></tr>`;
+        return;
+      }
+      for (const r of records) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(r.category)}</td>
+          <td class="name">${escapeHtml(r.winner)}</td>
+          <td class="hide-sm">${escapeHtml(r.notes || "")}</td>
+        `;
+        body.appendChild(tr);
+      }
+      byId("countWinners").textContent = `${records.length} shown`;
     }
 
     async function refresh() {
@@ -573,36 +694,59 @@
         }
         if (!rows.length) throw new Error("CSV contained no rows");
 
-        let main, tb;
+        let tables = [];
         try {
-          ({ main, tb } = splitTables(rows));
+          tables = splitAllTables(rows); // [{header, body}, ...]
         } catch (e) {
           console.error("Header detection error:", e);
           throw new Error("Could not detect tables in CSV");
         }
 
+        // Heuristics: first table = main (Contestant+Score), second = TB (Contestant+Score for TB),
+        // third (if present) = Winners (Category+Winner).
+        const tMain = tables[0];
+        const tTB   = tables[1];
+        const tWin  = tables[2];
+
         try {
-          state.main.records = mapMainRecords(main.header, main.body);
+          state.main.records = mapMainRecords(tMain.header, tMain.body);
           leaderConfetti(state.main.records[0]?.name || "");
           renderMain();
         } catch (e) {
-          console.error("Main table mapping error:", e, { header: main.header });
+          console.error("Main table mapping error:", e, { header: tMain?.header });
           throw new Error("Main table mapping failed");
         }
 
-        if (tb && tb.header?.length) {
+        if (tTB) {
           try {
-            state.tb.records = mapTBRecords(tb.header, tb.body);
-            buildTBHeader();
+            state.tb.records = mapTBRecords(tTB.header, tTB.body);
             byId("tbSection").hidden = false;
-            renderTB();
             setTBStatus("Live");
+            renderTB();
           } catch (e) {
-            console.error("Tiebreaker mapping error:", e, { header: tb.header });
-            byId("tbSection").hidden = true; // hide TB if it fails
+            console.error("Tiebreaker mapping error:", e, { header: tTB?.header });
+            byId("tbSection").hidden = true;
           }
         } else {
           byId("tbSection").hidden = true;
+        }
+
+        if (tWin) {
+          try {
+            const winnersNow = mapWinnersRecords(tWin.header, tWin.body);
+            const ordered = updateWinnersOrder(winnersNow);
+            state.winners.records = ordered;
+            byId("winnersSection").hidden = ordered.length === 0;
+            if (ordered.length > 0) {
+              setWinnersStatus("Live");
+              renderWinners(ordered);
+            }
+          } catch (e) {
+            console.error("Winners mapping error:", e, { header: tWin?.header });
+            byId("winnersSection").hidden = true;
+          }
+        } else {
+          byId("winnersSection").hidden = true;
         }
 
         byId("updatedAt").textContent = `Last updated: ${new Date().toLocaleString()}`;
@@ -611,10 +755,11 @@
         console.error("Refresh error:", err);
         setStatus(`Update failed — retrying…`, true);
         if (!byId("tbSection").hidden) setTBStatus("Update failed — retrying…", true);
+        if (!byId("winnersSection").hidden) setWinnersStatus("Update failed — retrying…", true);
       }
     }
 
-    // Sorting events
+    // Sorting events (Main & TB only; Winners is fixed by reveal order)
     document.addEventListener("click", (e) => {
       const el = e.target.closest(".sort");
       if (!el) return;
@@ -626,7 +771,6 @@
         state.main.sort = (s.key === key)
           ? { key, dir: s.dir === "asc" ? "desc" : "asc" }
           : { key, dir: key === "name" ? "asc" : "desc" };
-        // Update arrows
         $$(".sort[data-table='main']").forEach(x => {
           x.classList.toggle("active", x.dataset.key === state.main.sort.key);
           const a = x.querySelector(".arrow");
@@ -646,6 +790,13 @@
         });
         renderTB();
       }
+    });
+
+    // Admin: reset winners order
+    byId("resetWinners").addEventListener("click", () => {
+      localStorage.removeItem(WINNERS_ORDER_KEY);
+      // On next refresh it will re-seed order from current winners (maintains display)
+      renderWinners(updateWinnersOrder(state.winners.records));
     });
 
     // Boot
