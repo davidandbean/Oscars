@@ -67,7 +67,6 @@
       line-height: 1.15;
       background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
       -webkit-background-clip: text; background-clip: text; color: transparent;
-      text-shadow: 0 0 0 rgba(0,0,0,0);
     }
     .trophy {
       width: 58px; height: 58px; border-radius: 12px; display:grid; place-items:center;
@@ -75,7 +74,7 @@
         conic-gradient(from 210deg, rgba(245,197,66,.35), rgba(245,197,66,.08) 40%, rgba(167,139,250,.2) 60%, rgba(245,197,66,.35));
       border: 1px solid rgba(245,197,66,.5);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), var(--shadow);
-      font-size: 30px; flex: 0 0 auto;
+      font-size: 30px;
     }
     .subtitle { color: var(--muted); font-size: .95rem; }
 
@@ -300,25 +299,22 @@
 
   <script>
     // ===== Configuration =====
-    // Main & TB (unchanged CSV):
+    // Leaderboard/TB CSV (unchanged)
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdf-pBP_AyYyPgagUN1qXI5hCTLYajF473HMQpbeTG9JDymQA970RNg-2ymgJqmw_Cj3S2w_05rSvL/pub?gid=579714765&single=true&output=csv";
-
-    // Winners live CSV (separate sheet; categories in B1..Y1; latest non-empty row = current winners):
+    // Winners CSV (separate GID; B1..Y1 headers; latest non-empty row = winners)
     const WINNERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdf-pBP_AyYyPgagUN1qXI5hCTLYajF473HMQpbeTG9JDymQA970RNg-2ymgJqmw_Cj3S2w_05rSvL/pub?gid=289165013&single=true&output=csv";
 
-    const POLL_MS = 30000; // 30s
-
-    // Use a fresh order key for winners (avoid stale from prior versions)
+    const POLL_MS = 30000;
     const WINNERS_ORDER_KEY_V2 = "oscars_winners_order_v2";
 
-    // Synonyms to map headers reliably
+    // ===== Synonyms for table header mapping =====
     const MAIN_SYNONYMS = {
       name: ["participant","name","player","entry","team","user","contestant"],
       score: ["score","points","total","pts"]
     };
     const TB_SYNONYMS = {
       name: ["participant","name","player","entry","team","user","contestant"],
-      tbScore: ["tb score","tiebreaker score","score","points","pts"] // TB table uses "Contestant" + "Score"
+      tbScore: ["tb score","tiebreaker score","score","points","pts"]
     };
 
     // ===== Utilities =====
@@ -335,7 +331,7 @@
     }
     function numify(x,f=NaN){const n=Number(String(x??"").replace(/[^0-9.-]/g,""));return Number.isFinite(n)?n:f;}
 
-    // CSV parser (quotes & commas)
+    // CSV parser (handles quotes & commas)
     function parseCSV(text){
       const rows=[]; let cur=[], cell="", inQ=false, i=0;
       while (i < text.length){
@@ -366,7 +362,6 @@
       map.raw=headers; return map;
     }
 
-    // Detect typical "section title" rows like "BRACKET SCORES" / "TIEBREAKER SCORES"
     function isSectionTitleRow(cells){
       const nonEmpty = cells.filter(c => String(c).trim() !== "");
       if (nonEmpty.length !== 1) return false;
@@ -379,8 +374,6 @@
       const hasScore = MAIN_SYNONYMS.score.some(s => l.includes(s)) || TB_SYNONYMS.tbScore.some(s => l.includes(s));
       return hasName && hasScore;
     }
-
-    // Split a compound CSV into tables; table ends at next header OR a section title row
     function splitAllTables(rows){
       const headerIdxs=[];
       for (let i=0;i<rows.length;i++){
@@ -389,9 +382,7 @@
         if (isScoreHeaderRow(r)) headerIdxs.push(i);
       }
       if (!headerIdxs.length) throw new Error("No header rows detected");
-
       const sectionIdxs=[]; for (let i=0;i<rows.length;i++){ if (isSectionTitleRow(rows[i])) sectionIdxs.push(i); }
-
       const tables=[];
       for (let h=0; h<headerIdxs.length; h++){
         const start=headerIdxs[h];
@@ -478,61 +469,18 @@
       byId("countTB").textContent=`${rows.length} shown`;
     }
 
-    // Confetti on overall leader change
-    function leaderConfetti(newLeaderName){
-      try{
-        if (!newLeaderName || newLeaderName===lastLeader) return;
-        lastLeader=newLeaderName; localStorage.setItem("oscars_last_leader", lastLeader);
-        const layer=byId("confetti"); layer.innerHTML="";
-        const colors=["#f5c542","#ffdf7e","#a78bfa","#22c55e","#ef4444","#f59e0b"];
-        const count=90;
-        for (let i=0;i<count;i++){
-          const e=document.createElement("i");
-          e.style.left=Math.random()*100+"vw";
-          e.style.background=colors[(Math.random()*colors.length)|0];
-          e.style.transform=`translateY(-20vh) rotate(${Math.random()*90}deg)`;
-          e.style.opacity=(0.7+Math.random()*0.3).toFixed(2);
-          e.style.animationDuration=(1000+Math.random()*1100).toFixed(0)+"ms";
-          e.style.borderRadius=(Math.random()>.5?"2px":"6px");
-          layer.appendChild(e);
-        }
-        setTimeout(()=>{layer.innerHTML="";},1900);
-      }catch{}
-    }
-
-    // ===== Cleaners & Mappers =====
-    function cleanBodyRows(body){
-      return body.filter(r=>r && r.some(c=>String(c).trim()!=="")).filter(r=>!isSectionTitleRow(r));
-    }
-    function mapMainRecords(header, body){
-      const map=buildMapper(header, MAIN_SYNONYMS);
-      if (map.nameIdx<0 || map.scoreIdx<0) throw new Error("Main table missing 'Contestant'/'Score'.");
-      const rows=cleanBodyRows(body);
-      const recs=rows.map(r=>({name:String(r[map.nameIdx]??"").trim(), score:numify(r[map.scoreIdx],0)}));
-      recs.forEach(rr=>{ if(!Number.isFinite(rr.score)) rr.score=0; });
-      return rankByScore(recs);
-    }
-    function mapTBRecords(header, body){
-      const map=buildMapper(header, TB_SYNONYMS);
-      if (map.nameIdx<0 || map.tbScoreIdx<0) throw new Error("Tiebreaker table missing 'Contestant'/'Score'.");
-      const rows=cleanBodyRows(body);
-      const recs=rows.map(r=>({name:String(r[map.nameIdx]??"").trim(), tbScore:numify(r[map.tbScoreIdx],0)}));
-      recs.sort((a,b)=> (b.tbScore - a.tbScore) || a.name.localeCompare(b.name));
-      let last=null,lastRank=0; recs.forEach((r,i)=>{ if(r.tbScore===last) r.rank=lastRank; else { r.rank=i+1; lastRank=r.rank; last=r.tbScore; }});
-      return recs;
-    }
-
     // ===== Winners (separate CSV) =====
     function normalizeTitle(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,""); }
 
-    // Assumptions: first non-empty row = headers (B.. = categories), latest non-empty row below = winners.
+    // From winners CSV: first non-empty row = headers (B..), latest non-empty row below = winners
     function extractWinnersFromRows(rows){
       if (!rows || !rows.length) return {};
+      // header row
       let headerIdx=-1;
       for (let i=0;i<rows.length;i++){ if (rows[i].some(c=>String(c).trim()!=="")){ headerIdx=i; break; } }
       if (headerIdx===-1) return {};
       const headers = rows[headerIdx];
-
+      // latest winners row
       let dataIdx=-1;
       for (let i=rows.length-1;i>headerIdx;i--){ if (rows[i].some(c=>String(c).trim()!=="")){ dataIdx=i; break; } }
       if (dataIdx===-1) return {};
@@ -551,8 +499,10 @@
     function updateWinnersOrderV2(records){
       const byCat = Object.create(null); records.forEach(r=>{ byCat[r.category]=r; });
       let order=[]; try{ order=JSON.parse(localStorage.getItem(WINNERS_ORDER_KEY_V2) || "[]"); }catch{}
-      order = order.filter(cat => byCat[cat]); // keep existing
-      for (const r of records){ if (!order.includes(r.category)) order.push(r.category); } // append new
+      // keep existing
+      order = order.filter(cat => byCat[cat]);
+      // append new
+      for (const r of records){ if (!order.includes(r.category)) order.push(r.category); }
       localStorage.setItem(WINNERS_ORDER_KEY_V2, JSON.stringify(order));
       return order.map(cat => byCat[cat]).filter(Boolean);
     }
@@ -582,7 +532,7 @@
         const rows = parseCSV(text);
         const winMap = extractWinnersFromRows(rows);
 
-        // Build display records using the real headers (for nice category labels)
+        // Build records using header labels for pretty category names
         let headerIdx = rows.findIndex(r => r.some(c => String(c).trim() !== ""));
         const headers = headerIdx >= 0 ? rows[headerIdx] : [];
         const records = [];
@@ -621,8 +571,7 @@
         const rows = parseCSV(text);
         if (!rows.length) throw new Error("CSV contained no rows");
 
-        // Split & classify score tables
-        const tables = splitAllTables(rows); // [{header, body}, ...]
+        const tables = splitAllTables(rows);
         let mainT=null, tbT=null;
         for (const t of tables){
           if (isScoreHeaderRow(t.header)){
@@ -685,10 +634,10 @@
       }
     });
 
-    // Admin: reset winners order (new v2 key)
+    // Admin: reset winners order (v2 key)
     byId("resetWinners").addEventListener("click",()=>{
       localStorage.removeItem(WINNERS_ORDER_KEY_V2);
-      renderWinners([]); // visual clear; will be rebuilt on next refresh
+      renderWinners([]); // clear; will repopulate on next refresh
     });
 
     // Boot
