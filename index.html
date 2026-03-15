@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>BB&amp;D+E Oscars Bracket — Live Leaderboard</title>
+  <title>BB&D+E Oscars Bracket — Live Leaderboard</title>
   <meta name="description" content="Live, auto-updating Oscars bracket leaderboard with tiebreakers and winners. Sortable, mobile-friendly, and Oscar-themed!" />
   <style>
     :root {
@@ -28,7 +28,7 @@
       --row-alt: #0c0f14;
       --row-border: #232832;
       --shadow: 0 14px 40px rgba(0,0,0,.45);
-      --tap: 48px; /* minimum touch size */
+      --tap: 48px; /* min touch target */
       --pad: max(16px, env(safe-area-inset-left));
       --pad-r: max(16px, env(safe-area-inset-right));
       --pad-b: max(20px, env(safe-area-inset-bottom));
@@ -65,7 +65,6 @@
       display:flex; align-items:center; gap:14px;
       font-size: clamp(1.6rem, 3.8vw, 2.2rem); font-weight: 900; letter-spacing: .25px;
       line-height: 1.15;
-      /* Fun gold gradient text */
       background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
       -webkit-background-clip: text; background-clip: text; color: transparent;
       text-shadow: 0 0 0 rgba(0,0,0,0);
@@ -76,47 +75,32 @@
         conic-gradient(from 210deg, rgba(245,197,66,.35), rgba(245,197,66,.08) 40%, rgba(167,139,250,.2) 60%, rgba(245,197,66,.35));
       border: 1px solid rgba(245,197,66,.5);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), var(--shadow);
-      font-size: 30px;
-      flex: 0 0 auto;
+      font-size: 30px; flex: 0 0 auto;
     }
     .subtitle { color: var(--muted); font-size: .95rem; }
 
-    /* Divider ribbon */
     .ribbon {
       display:flex; align-items:center; gap:10px; color: var(--gold);
       font-weight: 700; text-transform: uppercase; letter-spacing: .12em;
-      margin-top: 4px;
-      min-height: 24px;
+      margin-top: 4px; min-height: 24px;
     }
-    .ribbon .bar { flex:1; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      opacity: .6;
-    }
+    .ribbon .bar { flex:1; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .6; }
 
-    /* Section */
     .section { margin-top: 26px; }
     .section h2 {
       margin: 0 0 6px; font-size: clamp(1.15rem, 3.2vw, 1.45rem);
       display: inline-flex; align-items: center; gap: 10px;
       background: linear-gradient(90deg, var(--gold), var(--gold-2));
       -webkit-background-clip: text; background-clip: text; color: transparent;
-      text-shadow: 0 0 0 rgba(0,0,0,0);
     }
     .section .desc { color: var(--muted); margin-bottom: 10px; }
 
-    .controls {
-      display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 4px; margin-bottom: 12px;
-    }
-    .pill {
-      padding: 8px 12px; border-radius: 999px; background: var(--panel);
-      border: 1px solid var(--row-border); color: var(--muted); font-size: .9rem;
-      min-height: var(--tap); display:inline-flex; align-items:center;
-    }
-    .btn-link {
-      padding: 8px 12px; border-radius: 999px;
-      background: transparent; border: 1px dashed var(--row-border); color: var(--muted);
-      cursor: pointer; min-height: var(--tap);
-    }
+    .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 4px 0 12px; }
+    .pill { padding: 8px 12px; border-radius: 999px; background: var(--panel);
+            border: 1px solid var(--row-border); color: var(--muted); font-size: .9rem; min-height: var(--tap); display:inline-flex; align-items:center; }
+    .btn-link { padding: 8px 12px; border-radius: 999px; background: transparent; border: 1px dashed var(--row-border); color: var(--muted);
+                cursor: pointer; min-height: var(--tap); }
+
     .pill.error { color: #fff; background: #3a0d0d; border-color: #5f1616; }
     .pill.live { color: var(--green); }
 
@@ -197,7 +181,7 @@
     <header>
       <div class="title" aria-label="BB and D plus E Oscars Bracket">
         <div class="trophy" aria-hidden="true">🏆</div>
-        <span>BB&amp;D+E Oscars Bracket</span>
+        <span>BB&D+E Oscars Bracket</span>
       </div>
       <div class="subtitle">Auto-refreshes every 30 seconds • Click headers to sort</div>
       <div class="ribbon"><div class="bar"></div><span>Academy Awards</span><div class="bar"></div></div>
@@ -316,9 +300,16 @@
 
   <script>
     // ===== Configuration =====
+    // Main & TB (unchanged CSV):
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdf-pBP_AyYyPgagUN1qXI5hCTLYajF473HMQpbeTG9JDymQA970RNg-2ymgJqmw_Cj3S2w_05rSvL/pub?gid=579714765&single=true&output=csv";
+
+    // Winners live CSV (separate sheet; categories in B1..Y1; latest non-empty row = current winners):
+    const WINNERS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdf-pBP_AyYyPgagUN1qXI5hCTLYajF473HMQpbeTG9JDymQA970RNg-2ymgJqmw_Cj3S2w_05rSvL/pub?gid=289165013&single=true&output=csv";
+
     const POLL_MS = 30000; // 30s
-    const WINNERS_ORDER_KEY = "oscars_winners_order_v1"; // localStorage key for the order winners are revealed
+
+    // Use a fresh order key for winners (avoid stale from prior versions)
+    const WINNERS_ORDER_KEY_V2 = "oscars_winners_order_v2";
 
     // Synonyms to map headers reliably
     const MAIN_SYNONYMS = {
@@ -327,85 +318,84 @@
     };
     const TB_SYNONYMS = {
       name: ["participant","name","player","entry","team","user","contestant"],
-      tbScore: ["tb score","tiebreaker score","score","points","pts"]
-    };
-    // Winners: flexible names
-    const WIN_SYNONYMS = {
-      category: ["category","award","award name","oscar","category name"],
-      winner: ["winner","winners","won","result","selected","pick","film","title","name"],
-      notes: ["notes","comment","remarks","extra"]
+      tbScore: ["tb score","tiebreaker score","score","points","pts"] // TB table uses "Contestant" + "Score"
     };
 
     // ===== Utilities =====
     const byId = (id) => document.getElementById(id);
     const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+    const setStatus = (t,e=false)=>{const p=byId("statusPill");p.textContent=t;p.classList.toggle("error",e);p.classList.toggle("live",!e&&t.toLowerCase()==="live");};
+    const setTBStatus = (t,e=false)=>{const p=byId("tbStatus");p.textContent=t;p.classList.toggle("error",e);p.classList.toggle("live",!e&&t.toLowerCase()==="live");};
+    const setWinStatus = (t,e=false)=>{const p=byId("winnersStatus");p.textContent=t;p.classList.toggle("error",e);p.classList.toggle("live",!e&&t.toLowerCase()==="live");};
 
-    const setStatus     = (t,e=false)=>{const p=byId("statusPill");p.textContent=t;p.classList.toggle("error",e);p.classList.toggle("live",!e&&t.toLowerCase()==="live");};
-    const setTBStatus   = (t,e=false)=>{const p=byId("tbStatus");p.textContent=t;p.classList.toggle("error",e);p.classList.toggle("live",!e&&t.toLowerCase()==="live");};
-    const setWinStatus  = (t,e=false)=>{const p=byId("winnersStatus");p.textContent=t;p.classList.toggle("error",e);p.classList.toggle("live",!e&&t.toLowerCase()==="live");};
-
-    function escapeHtml(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");}
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+    }
     function numify(x,f=NaN){const n=Number(String(x??"").replace(/[^0-9.-]/g,""));return Number.isFinite(n)?n:f;}
 
     // CSV parser (quotes & commas)
     function parseCSV(text){
-      const rows=[];let cur=[],cell="",inQ=false,i=0;
-      while(i<text.length){const c=text[i];
-        if(c==='"'){if(inQ&&text[i+1]==='"'){cell+='"';i+=2;continue;} inQ=!inQ;i++;continue;}
-        if(!inQ&&(c===','||c==='\n'||c==='\r')){cur.push(cell);cell=""; if(c===','){i++;continue;} if(c==='\r'&&text[i+1]==='\n')i++; i++; rows.push(cur);cur=[];continue;}
-        cell+=c;i++;
+      const rows=[]; let cur=[], cell="", inQ=false, i=0;
+      while (i < text.length){
+        const c = text[i];
+        if (c === '"'){
+          if (inQ && text[i+1] === '"'){ cell+='"'; i+=2; continue; }
+          inQ = !inQ; i++; continue;
+        }
+        if (!inQ && (c === ',' || c === '\n' || c === '\r')){
+          cur.push(cell); cell="";
+          if (c === ','){ i++; continue; }
+          if (c === '\r' && text[i+1] === '\n') i++;
+          i++; rows.push(cur); cur=[]; continue;
+        }
+        cell += c; i++;
       }
-      cur.push(cell); if(cur.some(x=>String(x).trim()!=="")) rows.push(cur); return rows;
+      cur.push(cell);
+      if (cur.some(x => String(x).trim() !== "")) rows.push(cur);
+      return rows;
     }
     const toLower = (arr)=>arr.map(x=>String(x||"").trim().toLowerCase());
     function buildMapper(headers, synonyms){
-      const lower=toLower(headers);const map={};
-      for(const [field,syns] of Object.entries(synonyms)){let idx=-1;for(const s of syns){const at=lower.indexOf(s);if(at!==-1){idx=at;break;}} map[field+"Idx"]=idx;}
-      map.raw=headers;return map;
+      const lower=toLower(headers); const map={};
+      for (const [field, syns] of Object.entries(synonyms)){
+        let idx=-1; for (const s of syns){ const at=lower.indexOf(s); if (at!==-1){ idx=at; break; } }
+        map[field+"Idx"]=idx;
+      }
+      map.raw=headers; return map;
     }
 
-    // Detect "section title" single-cell rows like "OSCAR WINNERS", "TIEBREAKER SCORES", etc.
+    // Detect typical "section title" rows like "BRACKET SCORES" / "TIEBREAKER SCORES"
     function isSectionTitleRow(cells){
-      const nonEmpty=cells.filter(c=>String(c).trim()!=="");
-      if(nonEmpty.length!==1) return false;
-      const only=String(nonEmpty[0]).trim().toLowerCase();
-      return /(tiebreaker|tie\s*breaker|bracket|oscar\s*winners?).*(score|scores)?$/.test(only)
-          || /^(tiebreaker|bracket)\s*scores?$/.test(only)
-          || /^oscar\s*winners?$/.test(only);
+      const nonEmpty = cells.filter(c => String(c).trim() !== "");
+      if (nonEmpty.length !== 1) return false;
+      const only = String(nonEmpty[0]).trim().toLowerCase();
+      return /(tiebreaker|tie\s*breaker|bracket).*(score|scores)|^(tiebreaker|bracket)\s*scores?$/.test(only);
     }
-
     function isScoreHeaderRow(cells){
       const l=toLower(cells);
-      const hasName = MAIN_SYNONYMS.name.some(s=>l.includes(s));
-      const hasScore= MAIN_SYNONYMS.score.some(s=>l.includes(s)) || TB_SYNONYMS.tbScore.some(s=>l.includes(s));
+      const hasName = MAIN_SYNONYMS.name.some(s => l.includes(s));
+      const hasScore = MAIN_SYNONYMS.score.some(s => l.includes(s)) || TB_SYNONYMS.tbScore.some(s => l.includes(s));
       return hasName && hasScore;
     }
-    function isWinnersHeaderRow(cells){
-      const l=toLower(cells);
-      const hasCat = WIN_SYNONYMS.category.some(s=>l.includes(s));
-      const hasWin = WIN_SYNONYMS.winner.some(s=>l.includes(s));
-      return hasCat && hasWin;
-    }
 
-    // Split all tables; a table ends at the next header OR a section title row (whichever comes first)
+    // Split a compound CSV into tables; table ends at next header OR a section title row
     function splitAllTables(rows){
       const headerIdxs=[];
-      for(let i=0;i<rows.length;i++){
+      for (let i=0;i<rows.length;i++){
         const r=rows[i];
-        if(!r || r.every(c=>String(c).trim()==="")) continue;
-        if(isScoreHeaderRow(r) || isWinnersHeaderRow(r)) headerIdxs.push(i);
+        if (!r || r.every(c=>String(c).trim()==="")) continue;
+        if (isScoreHeaderRow(r)) headerIdxs.push(i);
       }
-      if(!headerIdxs.length) throw new Error("No header rows detected");
+      if (!headerIdxs.length) throw new Error("No header rows detected");
 
-      // Precompute all section-title indices for early termination
-      const sectionIdxs=[];
-      for(let i=0;i<rows.length;i++){ if(isSectionTitleRow(rows[i])) sectionIdxs.push(i); }
+      const sectionIdxs=[]; for (let i=0;i<rows.length;i++){ if (isSectionTitleRow(rows[i])) sectionIdxs.push(i); }
 
       const tables=[];
-      for(let h=0;h<headerIdxs.length;h++){
+      for (let h=0; h<headerIdxs.length; h++){
         const start=headerIdxs[h];
         const nextHeader = headerIdxs[h+1] ?? rows.length;
-        // next section title AFTER start
         const nextSection = sectionIdxs.find(idx=>idx>start) ?? rows.length;
         const end = Math.min(nextHeader, nextSection);
         tables.push({ header: rows[start], body: rows.slice(start+1, end) });
@@ -414,9 +404,9 @@
     }
 
     function medalFor(rank){
-      if(rank===1) return '<span class="medal" title="1st">🥇</span>';
-      if(rank===2) return '<span class="medal silver" title="2nd">🥈</span>';
-      if(rank===3) return '<span class="medal bronze" title="3rd">🥉</span>';
+      if (rank===1) return '<span class="medal" title="1st">🥇</span>';
+      if (rank===2) return '<span class="medal silver" title="2nd">🥈</span>';
+      if (rank===3) return '<span class="medal bronze" title="3rd">🥉</span>';
       return '<span class="medal" style="opacity:.25" title="Rank">★</span>';
     }
 
@@ -432,21 +422,20 @@
     function rankByScore(records){
       records.sort((a,b)=> (b.score - a.score) || a.name.localeCompare(b.name));
       let lastScore=null,lastRank=0;
-      for(let i=0;i<records.length;i++){
+      for (let i=0;i<records.length;i++){
         const r=records[i];
-        if(r.score===lastScore) r.rank=lastRank;
+        if (r.score===lastScore) r.rank=lastRank;
         else { r.rank=i+1; lastRank=r.rank; lastScore=r.score; }
       }
       return records;
     }
-
     function renderMain(){
       const body=byId("bodyMain");
       let rows=state.main.records.map(r=>({...r}));
       const {key,dir}=state.main.sort; const mul=dir==="asc"?1:-1;
-      rows.sort((a,b)=>{let va=a[key],vb=b[key]; if(key==="score"||key==="rank"){va=Number(va)||0;vb=Number(vb)||0;} return (va<vb?-1:va>vb?1:0)*mul;});
+      rows.sort((a,b)=>{let va=a[key],vb=b[key]; if(key==="score"||key==="rank"){va=Number(va)||0; vb=Number(vb)||0;} return (va<vb?-1:va>vb?1:0)*mul;});
       body.innerHTML="";
-      for(const r of rows){
+      for (const r of rows){
         const tr=document.createElement("tr");
         tr.innerHTML=`
           <td><span class="rank">${medalFor(r.rank)} <span>#${r.rank}</span></span></td>
@@ -471,13 +460,13 @@
       const body=byId("bodyTB");
       let rows=state.tb.records.map(r=>({...r}));
       const {key,dir}=state.tb.sort; const mul=dir==="asc"?1:-1;
-      rows.sort((a,b)=>{let va=a[key],vb=b[key]; if(["tbScore","rank"].includes(key)){va=Number(va)||0;vb=Number(vb)||0;} return (va<vb?-1:va>vb?1:0)*mul;});
-      if(key==="tbScore"){
+      rows.sort((a,b)=>{let va=a[key],vb=b[key]; if(["tbScore","rank"].includes(key)){va=Number(va)||0; vb=Number(vb)||0;} return (va<vb?-1:va>vb?1:0)*mul;});
+      if (key==="tbScore"){
         rows.sort((a,b)=> (b.tbScore - a.tbScore) || a.name.localeCompare(b.name));
         let last=null,lastRank=0; rows.forEach((r,i)=>{ if(r.tbScore===last) r.rank=lastRank; else { r.rank=i+1; lastRank=r.rank; last=r.tbScore; }});
       }
       body.innerHTML="";
-      for(const r of rows){
+      for (const r of rows){
         const tr=document.createElement("tr");
         tr.innerHTML=`
           <td><span class="rank">${medalFor(r.rank)} <span>#${r.rank}</span></span></td>
@@ -492,12 +481,12 @@
     // Confetti on overall leader change
     function leaderConfetti(newLeaderName){
       try{
-        if(!newLeaderName || newLeaderName===lastLeader) return;
+        if (!newLeaderName || newLeaderName===lastLeader) return;
         lastLeader=newLeaderName; localStorage.setItem("oscars_last_leader", lastLeader);
         const layer=byId("confetti"); layer.innerHTML="";
         const colors=["#f5c542","#ffdf7e","#a78bfa","#22c55e","#ef4444","#f59e0b"];
         const count=90;
-        for(let i=0;i<count;i++){
+        for (let i=0;i<count;i++){
           const e=document.createElement("i");
           e.style.left=Math.random()*100+"vw";
           e.style.background=colors[(Math.random()*colors.length)|0];
@@ -517,7 +506,7 @@
     }
     function mapMainRecords(header, body){
       const map=buildMapper(header, MAIN_SYNONYMS);
-      if(map.nameIdx<0 || map.scoreIdx<0) throw new Error("Main table missing 'Contestant'/'Score'.");
+      if (map.nameIdx<0 || map.scoreIdx<0) throw new Error("Main table missing 'Contestant'/'Score'.");
       const rows=cleanBodyRows(body);
       const recs=rows.map(r=>({name:String(r[map.nameIdx]??"").trim(), score:numify(r[map.scoreIdx],0)}));
       recs.forEach(rr=>{ if(!Number.isFinite(rr.score)) rr.score=0; });
@@ -525,55 +514,104 @@
     }
     function mapTBRecords(header, body){
       const map=buildMapper(header, TB_SYNONYMS);
-      if(map.nameIdx<0 || map.tbScoreIdx<0) throw new Error("Tiebreaker table missing 'Contestant'/'Score'.");
+      if (map.nameIdx<0 || map.tbScoreIdx<0) throw new Error("Tiebreaker table missing 'Contestant'/'Score'.");
       const rows=cleanBodyRows(body);
       const recs=rows.map(r=>({name:String(r[map.nameIdx]??"").trim(), tbScore:numify(r[map.tbScoreIdx],0)}));
       recs.sort((a,b)=> (b.tbScore - a.tbScore) || a.name.localeCompare(b.name));
       let last=null,lastRank=0; recs.forEach((r,i)=>{ if(r.tbScore===last) r.rank=lastRank; else { r.rank=i+1; lastRank=r.rank; last=r.tbScore; }});
       return recs;
     }
-    function mapWinnersRecords(header, body){
-      const map=buildMapper(header, WIN_SYNONYMS);
-      if(map.categoryIdx<0 || map.winnerIdx<0) return []; // silently skip if headers absent
-      const rows=cleanBodyRows(body);
-      const recs=rows.map(r=>({
-        category:String(r[map.categoryIdx]??"").trim(),
-        winner:String(r[map.winnerIdx]??"").trim(),
-        notes: map.notesIdx>=0 ? String(r[map.notesIdx]??"").trim() : ""
-      })).filter(x=>x.category!=="" && x.winner!=="");
-      return recs;
+
+    // ===== Winners (separate CSV) =====
+    function normalizeTitle(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,""); }
+
+    // Assumptions: first non-empty row = headers (B.. = categories), latest non-empty row below = winners.
+    function extractWinnersFromRows(rows){
+      if (!rows || !rows.length) return {};
+      let headerIdx=-1;
+      for (let i=0;i<rows.length;i++){ if (rows[i].some(c=>String(c).trim()!=="")){ headerIdx=i; break; } }
+      if (headerIdx===-1) return {};
+      const headers = rows[headerIdx];
+
+      let dataIdx=-1;
+      for (let i=rows.length-1;i>headerIdx;i--){ if (rows[i].some(c=>String(c).trim()!=="")){ dataIdx=i; break; } }
+      if (dataIdx===-1) return {};
+      const data = rows[dataIdx];
+
+      const map={};
+      const maxC=Math.max(headers.length, data.length);
+      for (let c=1;c<maxC;c++){ // ignore column A
+        const cat = String(headers[c]||"").trim();
+        const win = String(data[c]||"").trim();
+        if (cat && win) map[normalizeTitle(cat)] = win;
+      }
+      return map;
     }
 
-    // Winners: preserve reveal order with localStorage
-    function updateWinnersOrder(current){
-      const map=Object.create(null); current.forEach(r=>{map[r.category]=r;});
-      let order=[]; try{order=JSON.parse(localStorage.getItem(WINNERS_ORDER_KEY)||"[]");}catch{order=[];}
-      // keep existing order, drop removed
-      order=order.filter(cat=>map[cat]);
-      // append new categories at end
-      for(const r of current){ if(!order.includes(r.category)) order.push(r.category); }
-      localStorage.setItem(WINNERS_ORDER_KEY, JSON.stringify(order));
-      return order.map(cat=>map[cat]).filter(Boolean);
+    function updateWinnersOrderV2(records){
+      const byCat = Object.create(null); records.forEach(r=>{ byCat[r.category]=r; });
+      let order=[]; try{ order=JSON.parse(localStorage.getItem(WINNERS_ORDER_KEY_V2) || "[]"); }catch{}
+      order = order.filter(cat => byCat[cat]); // keep existing
+      for (const r of records){ if (!order.includes(r.category)) order.push(r.category); } // append new
+      localStorage.setItem(WINNERS_ORDER_KEY_V2, JSON.stringify(order));
+      return order.map(cat => byCat[cat]).filter(Boolean);
     }
+
     function renderWinners(records){
       const body=byId("bodyWinners");
       body.innerHTML="";
-      if(!records.length){ body.innerHTML=`<tr><td colspan="3" style="padding:24px;">Waiting for winners…</td></tr>`; return; }
-      for(const r of records){
+      if (!records.length){
+        body.innerHTML = `<tr><td colspan="3" style="padding:24px;">Waiting for winners…</td></tr>`;
+        return;
+      }
+      for (const r of records){
         const tr=document.createElement("tr");
-        tr.innerHTML=`
+        tr.innerHTML = `
           <td>${escapeHtml(r.category)}</td>
           <td class="name">${escapeHtml(r.winner)}</td>
           <td class="hide-sm">${escapeHtml(r.notes||"")}</td>
         `;
         body.appendChild(tr);
       }
-      byId("countWinners").textContent=`${records.length} shown`;
+      byId("countWinners").textContent = `${records.length} shown`;
     }
 
-    // ===== Fetch + Refresh =====
+    async function refreshWinnersFromSeparateCSV(){
+      try{
+        const text = await fetchCSV(WINNERS_CSV_URL);
+        const rows = parseCSV(text);
+        const winMap = extractWinnersFromRows(rows);
+
+        // Build display records using the real headers (for nice category labels)
+        let headerIdx = rows.findIndex(r => r.some(c => String(c).trim() !== ""));
+        const headers = headerIdx >= 0 ? rows[headerIdx] : [];
+        const records = [];
+        for (let c=1; c<headers.length; c++){
+          const catDisplay = String(headers[c] || "").trim();
+          if (!catDisplay) continue;
+          const norm = normalizeTitle(catDisplay);
+          if (winMap[norm]){
+            records.push({ category: catDisplay, winner: winMap[norm], notes: "" });
+          }
+        }
+
+        const ordered = updateWinnersOrderV2(records);
+        byId("winnersSection").hidden = ordered.length === 0;
+        if (ordered.length > 0){
+          setWinStatus("Live");
+          renderWinners(ordered);
+        }
+      }catch(e){
+        console.error("Winners refresh error:", e);
+        if (!byId("winnersSection").hidden) setWinStatus("Update failed — retrying…", true);
+      }
+    }
+
+    // ===== Fetch + Refresh (Main + TB + Winners) =====
     async function fetchCSV(url){
-      const res=await fetch(url,{cache:"no-store"}); if(!res.ok) throw new Error(`Fetch failed: HTTP ${res.status}`); return await res.text();
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error(`Fetch failed: HTTP ${res.status}`);
+      return await res.text();
     }
 
     async function refresh(){
@@ -581,55 +619,44 @@
         setStatus("Updating…");
         const text = await fetchCSV(CSV_URL);
         const rows = parseCSV(text);
-        if(!rows.length) throw new Error("CSV contained no rows");
+        if (!rows.length) throw new Error("CSV contained no rows");
 
+        // Split & classify score tables
         const tables = splitAllTables(rows); // [{header, body}, ...]
-
-        // Classify: first score table => main; second score table => TB; winners table => winners
-        let mainT=null, tbT=null, winT=null;
-        for(const t of tables){
-          if(isScoreHeaderRow(t.header)){
-            if(!mainT) mainT=t;
-            else if(!tbT) tbT=t;
-          } else if(isWinnersHeaderRow(t.header)){
-            winT=t;
+        let mainT=null, tbT=null;
+        for (const t of tables){
+          if (isScoreHeaderRow(t.header)){
+            if (!mainT) mainT = t;
+            else if (!tbT) tbT = t;
           }
         }
 
         // Main
-        if(!mainT) throw new Error("Could not find main score table.");
+        if (!mainT) throw new Error("Could not find main score table.");
         state.main.records = mapMainRecords(mainT.header, mainT.body);
         leaderConfetti(state.main.records[0]?.name || "");
         renderMain();
 
         // TB
-        if(tbT){
+        if (tbT){
           state.tb.records = mapTBRecords(tbT.header, tbT.body);
           buildTBHeader();
-          byId("tbSection").hidden=false; setTBStatus("Live");
+          byId("tbSection").hidden = false; setTBStatus("Live");
           renderTB();
         } else {
-          byId("tbSection").hidden=true;
+          byId("tbSection").hidden = true;
         }
 
-        // Winners
-        if(winT){
-          const winnersNow = mapWinnersRecords(winT.header, winT.body);
-          const ordered = updateWinnersOrder(winnersNow);
-          state.winners.records = ordered;
-          byId("winnersSection").hidden = ordered.length===0;
-          if(ordered.length>0){ setWinStatus("Live"); renderWinners(ordered); }
-        } else {
-          byId("winnersSection").hidden=true;
-        }
+        // Winners (separate CSV)
+        await refreshWinnersFromSeparateCSV();
 
-        byId("updatedAt").textContent=`Last updated: ${new Date().toLocaleString()}`;
+        byId("updatedAt").textContent = `Last updated: ${new Date().toLocaleString()}`;
         setStatus("Live");
       }catch(err){
-        console.error("Refresh error:",err);
+        console.error("Refresh error:", err);
         setStatus(`Update failed — retrying…`, true);
-        if(!byId("tbSection").hidden) setTBStatus("Update failed — retrying…", true);
-        if(!byId("winnersSection").hidden) setWinStatus("Update failed — retrying…", true);
+        if (!byId("tbSection").hidden) setTBStatus("Update failed — retrying…", true);
+        if (!byId("winnersSection").hidden) setWinStatus("Update failed — retrying…", true);
       }
     }
 
@@ -637,25 +664,31 @@
     document.addEventListener("click",(e)=>{
       const el=e.target.closest(".sort"); if(!el) return;
       const table=el.dataset.table, key=el.dataset.key;
-      if(table==="main"){
+
+      if (table==="main"){
         const s=state.main.sort;
-        state.main.sort = (s.key===key)?{key,dir:s.dir==="asc"?"desc":"asc"}:{key,dir:key==="name"?"asc":"desc"};
-        $$(".sort[data-table='main']").forEach(x=>{x.classList.toggle("active",x.dataset.key===state.main.sort.key); const a=x.querySelector(".arrow"); if(a) a.textContent=state.main.sort.dir==="asc"?"↑":"↓";});
+        state.main.sort = (s.key===key) ? {key,dir:s.dir==="asc"?"desc":"asc"} : {key,dir:key==="name"?"asc":"desc"};
+        $$(".sort[data-table='main']").forEach(x=>{
+          x.classList.toggle("active", x.dataset.key===state.main.sort.key);
+          const a=x.querySelector(".arrow"); if(a) a.textContent = state.main.sort.dir==="asc" ? "↑" : "↓";
+        });
         renderMain();
       }
-      if(table==="tb"){
+      if (table==="tb"){
         const s=state.tb.sort;
-        state.tb.sort = (s.key===key)?{key,dir:s.dir==="asc"?"desc":"asc"}:{key,dir:key==="name"?"asc":(key==="diff"?"asc":"desc")};
-        $$(".sort[data-table='tb']").forEach(x=>{x.classList.toggle("active",x.dataset.key===state.tb.sort.key); const a=x.querySelector(".arrow"); if(a) a.textContent=state.tb.sort.dir==="asc"?"↑":"↓";});
+        state.tb.sort = (s.key===key) ? {key,dir:s.dir==="asc"?"desc":"asc"} : {key,dir:key==="name"?"asc":"desc"};
+        $$(".sort[data-table='tb']").forEach(x=>{
+          x.classList.toggle("active", x.dataset.key===state.tb.sort.key);
+          const a=x.querySelector(".arrow"); if(a) a.textContent = state.tb.sort.dir==="asc" ? "↑" : "↓";
+        });
         renderTB();
       }
     });
 
-    // Admin: reset winners order
+    // Admin: reset winners order (new v2 key)
     byId("resetWinners").addEventListener("click",()=>{
-      localStorage.removeItem(WINNERS_ORDER_KEY);
-      // Next refresh will re-seed order; quick re-render with current
-      renderWinners(updateWinnersOrder(state.winners.records));
+      localStorage.removeItem(WINNERS_ORDER_KEY_V2);
+      renderWinners([]); // visual clear; will be rebuilt on next refresh
     });
 
     // Boot
