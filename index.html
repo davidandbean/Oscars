@@ -2,34 +2,687 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <!-- iPhone / Safari friendliness -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>BB&D+E Oscars Bracket — Live Leaderboard</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>BB&amp;D+E Oscars Bracket — Live Leaderboard</title>
+  <meta name="description" content="Live, auto-updating Oscars bracket leaderboard with tiebreakers and winners. Sortable, mobile-friendly, and Oscar-themed!" />
   <style>
-    :root {color-scheme: light dark; --bg:#0a0a0a; --panel:#111317; --panel2:#171a20; --text:#f6f7fb; --muted:#aab1bc; --gold:#f5c542; --gold2:#ffdf7e; --row:#0c0f14; --border:#232832; --green:#22c55e; --danger:#ef4444;}
-    @media (prefers-color-scheme: light) {:root {--bg:#faf8f2; --panel:#fff; --panel2:#fbfaf6; --text:#111317; --muted:#4f5966; --row:#fffdf7; --border:#ece6d8;}}
-    body {margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-    .wrap {max-width:1100px;margin:0 auto;padding:28px 16px 44px}
-    .title {font-weight:900;font-size:clamp(1.6rem,3.8vw,2.2rem);background:linear-gradient(90deg,var(--gold),var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
-    .pillbar {display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;overflow:auto;padding-bottom:4px}
-    .pill {padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:var(--panel);color:var(--muted);text-decoration:none;white-space:nowrap}
+    :root {
+      color-scheme: light dark;
+      /* Oscars palette */
+      --bg: #0a0a0a;
+      --bg-grad1: rgba(245,197,66,.10);
+      --bg-grad2: rgba(160,82,45,.10);
+      --panel: #111317;
+      --panel-2: #171a20;
+      --text: #f6f7fb;
+      --muted: #aab1bc;
+      --gold: #f5c542;
+      --gold-2: #ffdf7e;
+      --gold-3: #b68e2a;
+      --accent: #a78bfa;
+      --danger: #ef4444;
+      --green: #22c55e;
+      --row-alt: #0c0f14;
+      --row-border: #232832;
+      --shadow: 0 14px 40px rgba(0,0,0,.45);
+      --tap: 48px; /* minimum touch size */
+      --pad: max(16px, env(safe-area-inset-left));
+      --pad-r: max(16px, env(safe-area-inset-right));
+      --pad-b: max(20px, env(safe-area-inset-bottom));
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #faf8f2;
+        --bg-grad1: rgba(245,197,66,.16);
+        --bg-grad2: rgba(160,82,45,.12);
+        --panel: #ffffff;
+        --panel-2: #fbfaf6;
+        --text: #111317;
+        --muted: #4f5966;
+        --row-alt: #fffdf7;
+        --row-border: #ece6d8;
+        --shadow: 0 10px 28px rgba(0,0,0,.08);
+      }
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background:
+        radial-gradient(1200px 800px at 0% 0%, var(--bg-grad1), transparent 60%),
+        radial-gradient(1200px 800px at 100% 10%, var(--bg-grad2), transparent 55%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 28px var(--pad) calc(44px + var(--pad-b)); }
+
+    header { display: grid; gap: 8px; margin-bottom: 22px; }
+    .title {
+      display:flex; align-items:center; gap:14px;
+      font-size: clamp(1.6rem, 3.8vw, 2.2rem); font-weight: 900; letter-spacing: .25px;
+      line-height: 1.15;
+      /* Fun gold gradient text */
+      background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      text-shadow: 0 0 0 rgba(0,0,0,0);
+    }
+    .trophy {
+      width: 58px; height: 58px; border-radius: 12px; display:grid; place-items:center;
+      background:
+        conic-gradient(from 210deg, rgba(245,197,66,.35), rgba(245,197,66,.08) 40%, rgba(167,139,250,.2) 60%, rgba(245,197,66,.35));
+      border: 1px solid rgba(245,197,66,.5);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), var(--shadow);
+      font-size: 30px;
+      flex: 0 0 auto;
+    }
+    .subtitle { color: var(--muted); font-size: .95rem; }
+
+    /* Divider ribbon */
+    .ribbon {
+      display:flex; align-items:center; gap:10px; color: var(--gold);
+      font-weight: 700; text-transform: uppercase; letter-spacing: .12em;
+      margin-top: 4px;
+      min-height: 24px;
+    }
+    .ribbon .bar { flex:1; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: .6;
+    }
+
+    /* Section */
+    .section { margin-top: 26px; }
+    .section h2 {
+      margin: 0 0 6px; font-size: clamp(1.15rem, 3.2vw, 1.45rem);
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      text-shadow: 0 0 0 rgba(0,0,0,0);
+    }
+    .section .desc { color: var(--muted); margin-bottom: 10px; }
+
+    .controls {
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 4px; margin-bottom: 12px;
+    }
+    .pill {
+      padding: 8px 12px; border-radius: 999px; background: var(--panel);
+      border: 1px solid var(--row-border); color: var(--muted); font-size: .9rem;
+      min-height: var(--tap); display:inline-flex; align-items:center;
+    }
+    .btn-link {
+      padding: 8px 12px; border-radius: 999px;
+      background: transparent; border: 1px dashed var(--row-border); color: var(--muted);
+      cursor: pointer; min-height: var(--tap);
+    }
+    .pill.error { color: #fff; background: #3a0d0d; border-color: #5f1616; }
+    .pill.live { color: var(--green); }
+
+    .board {
+      background:
+        linear-gradient(180deg, rgba(255,215,128,.06), transparent 40%),
+        radial-gradient(400px 120px at 10% 0%, rgba(245,197,66,.12), transparent 60%),
+        var(--panel);
+      border: 1px solid var(--row-border);
+      border-radius: 18px; overflow: hidden; box-shadow: var(--shadow);
+    }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: linear-gradient(180deg, var(--panel-2), transparent);
+      text-align: left; padding: 14px 14px; font-weight: 800; font-size: 1rem;
+      border-bottom: 1px solid var(--row-border);
+      position: sticky; top: 0; z-index: 1; white-space: nowrap;
+    }
+    tbody td { padding: 14px 14px; border-top: 1px solid var(--row-border); font-size: 1rem; }
+    tbody tr:nth-child(even) td { background: var(--row-alt); }
+
+    .rank { display: inline-flex; align-items: center; gap: 8px; font-weight: 900; }
+    .medal {
+      width: 28px; height: 28px; border-radius: 999px; display:grid; place-items:center;
+      font-size: 16px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), 0 2px 6px rgba(0,0,0,.25);
+      background: linear-gradient(135deg, rgba(245,197,66,.25), rgba(245,197,66,.05));
+      border: 1px solid rgba(245,197,66,.5);
+    }
+    .medal.silver { background: linear-gradient(135deg, rgba(206,212,218,.35), rgba(206,212,218,.08)); border-color: rgba(206,212,218,.75); }
+    .medal.bronze { background: linear-gradient(135deg, rgba(205,127,50,.35), rgba(205,127,50,.08)); border-color: rgba(205,127,50,.7); }
+    .right { text-align: right; }
+    .name { font-weight: 800; }
+
+    .updated { color: var(--muted); font-size: .9rem; padding: 12px 16px 16px; }
+
+    .sort { cursor: pointer; user-select: none; display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap); }
+    .sort .arrow { opacity: .65; font-size: .9em; }
+    .sort.active { color: var(--gold); }
+    .sort.active .arrow { opacity: 1; }
+
+    /* Filmstrip accent */
+    .filmstrip {
+      display: grid; grid-auto-flow: column; gap: 6px; padding: 8px 14px; align-items: center;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), transparent);
+      border-bottom: 1px dashed rgba(245,197,66,.35);
+      font-size: .9rem; color: var(--muted);
+    }
+    .filmcell {
+      width: 12px; height: 12px; border: 1px solid rgba(255,255,255,.2); border-radius: 3px;
+      background: rgba(255,255,255,.06);
+    }
+    .filmrow { display:flex; gap:6px; }
+
+    /* Confetti for leader change */
+    .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 9999; }
+    .confetti i {
+      position: absolute; width: 10px; height: 16px; opacity: 0.9;
+      transform: translateY(-20vh) rotate(0deg);
+      animation: fall 1400ms linear forwards;
+      will-change: transform;
+    }
+    @keyframes fall { 0% { transform: translateY(-20vh) rotate(0deg); } 100% { transform: translateY(120vh) rotate(540deg); } }
+
+    /* Mobile tweaks */
+    @media (max-width: 560px) {
+      html, body { font-size: 16px; }
+      thead th, tbody td { padding: 12px 12px; }
+      .title { gap: 10px; }
+      .trophy { width: 52px; height: 52px; font-size: 26px; }
+      .controls { gap: 8px; }
+      .pill { padding: 8px 10px; }
+    }
+
+/* Pills bar for 'My Entries' */
+.pillbar { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; overflow:auto; padding-bottom:4px; }
+.pill { padding:8px 12px; border-radius:999px; border:1px solid var(--row-border, #232832);
+        background: var(--panel, #111317); color: var(--muted, #aab1bc);
+        text-decoration:none; white-space:nowrap; }
+
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="title">BB&D+E Oscars Bracket</div>
-    <div style="color:var(--muted);margin-top:4px">Quick links — My Entries</div>
-    <div class="pillbar" id="pillbar">
-      <a class="pill pill-link" href="entries/abi.html">Abi</a>
-      <a class="pill pill-link" href="entries/bean.html">Bean</a>
-      <a class="pill pill-link" href="entries/beebo.html">Beebo</a>
-      <a class="pill pill-link" href="entries/damon.html">Damon</a>
-      <a class="pill pill-link" href="entries/david.html">David</a>
-      <a class="pill pill-link" href="entries/kim.html">Kim</a>
-      <a class="pill pill-link" href="entries/lydia.html">Lydia</a>
-      <a class="pill pill-link" href="entries/olivia.html">Olivia</a>
-      <a class="pill pill-link" href="entries/papa.html">Papa</a>
-    </div>
-    <div style="margin-top:14px;color:var(--muted)">This is a lightweight index that only contains the new My Entries pill bar. Keep using your existing leaderboard index if preferred; you can copy this pill bar into it.</div>
+    <header>
+      <div class="title" aria-label="BB and D plus E Oscars Bracket">
+        <div class="trophy" aria-hidden="true">🏆</div>
+        <span>BB&amp;D+E Oscars Bracket</span>
+      </div>
+      <div class="subtitle">Auto-refreshes every 30 seconds • Click headers to sort</div>
+      <div class="ribbon"><div class="bar"></div><span>Academy Awards</span><div class="bar"></div></div>
+
+<div style="color:var(--muted);margin-top:4px">Quick links — My Entries</div>
+<div class="pillbar">
+  <!-- Link each contestant to their page in /entries/ -->
+  <a class="pill" href="entries/abi.html">Abi</a>
+  <a class="pill" href="entries/bean.html">Bean</a>
+  <a class="pill" href="entries/beebo.html">Beebo</a>
+  <a class="pill" href="entries/damon.html">Damon</a>
+  <a class="pill" href="entries/david.html">David</a>
+  <a class="pill" href="entries/kim.html">Kim</a>
+  <a class="pill" href="entries/lydia.html">Lydia</a>
+  <a class="pill" href="entries/olivia.html">Olivia</a>
+  <a class="pill" href="entries/papa.html">Papa</a>
+</div>
+
+    </header>
+
+    <!-- ===== Overall Leaderboard Section ===== -->
+    <section id="mainSection" class="section">
+      <h2>Oscars Bracket (Overall Leaderboard)</h2>
+      <div class="desc">Sorted by score (ties share the same rank). Click a header to sort.</div>
+
+      <div class="controls">
+        <div class="pill" id="countMain">—</div>
+        <div class="pill" id="statusPill">Loading…</div>
+      </div>
+
+      <div class="board" role="region" aria-label="Overall Leaderboard">
+        <div class="filmstrip">
+          <div class="filmrow" aria-hidden="true">
+            <div class="filmcell"></div><div class="filmcell"></div><div class="filmcell"></div>
+            <div class="filmcell"></div><div class="filmcell"></div><div class="filmcell"></div>
+            <div class="filmcell"></div><div class="filmcell"></div><div class="filmcell"></div>
+          </div>
+          <div style="justify-self:end; font-weight:600; color:var(--gold);">🎬 Live</div>
+        </div>
+        <div class="table-wrap">
+          <table id="tableMain">
+            <thead>
+              <tr>
+                <th style="width:90px;"><span class="sort" data-table="main" data-key="rank">Rank</span></th>
+                <th><span class="sort" data-table="main" data-key="name">Contestant <span class="arrow">↕</span></span></th>
+                <th class="right"><span class="sort" data-table="main" data-key="score">Score <span class="arrow">↕</span></span></th>
+              </tr>
+            </thead>
+            <tbody id="bodyMain">
+              <tr><td colspan="3" style="padding:24px;">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="updated" id="updatedAt">—</div>
+      </div>
+    </section>
+
+    <!-- ===== Tiebreaker Section ===== -->
+    <section id="tbSection" class="section" hidden>
+      <h2>🎯 Tiebreaker Leaderboard</h2>
+      <div class="desc" id="tbDesc">Higher Tiebreaker Score ranks higher. Click headers to sort.</div>
+
+      <div class="controls">
+        <div class="pill" id="countTB">—</div>
+        <div class="pill" id="tbStatus">—</div>
+      </div>
+
+      <div class="board" role="region" aria-label="Tiebreaker">
+        <div class="filmstrip">
+          <div class="filmrow" aria-hidden="true">
+            <div class="filmcell"></div><div class="filmcell"></div><div class="filmcell"></div>
+            <div class="filmcell"></div><div class="filmcell"></div><div class="filmcell"></div>
+            <div class="filmcell"></div><div class="filmcell"></div><div class="filmcell"></div>
+          </div>
+          <div style="justify-self:end; font-weight:600; color:var(--gold);">🎬 Live</div>
+        </div>
+
+        <div class="table-wrap">
+          <table id="tableTB">
+            <thead>
+              <tr id="headTB"><!-- Built dynamically --></tr>
+            </thead>
+            <tbody id="bodyTB">
+              <tr><td style="padding:24px;">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Oscar Winners Section ===== -->
+    <section id="winnersSection" class="section" hidden>
+      <h2>🏆 Oscar Winners (Live)</h2>
+      <div class="desc">Appears in the order winners are confirmed tonight (new winners append below the last one).</div>
+
+      <div class="controls">
+        <div class="pill" id="countWinners">—</div>
+        <div class="pill" id="winnersStatus">—</div>
+        <button id="resetWinners" class="btn-link" type="button" title="Reset the display order if needed">Reset order</button>
+      </div>
+
+      <div class="board" role="region" aria-label="Oscar Winners">
+        <div class="filmstrip">
+          <div class="filmrow" aria-hidden="true">
+            <div class="filmcell"></div><div class="filmcell"></div><div class="filmcell"></div>
+            <div class="filmcell"></div><div class="filmcell"></div><div class="filmcell"></div>
+            <div class="filmcell"></div><div class="filmcell"></div><div class="filmcell"></div>
+          </div>
+          <div style="justify-self:end; font-weight:600; color:var(--gold);">🎬 Live</div>
+        </div>
+
+        <div class="table-wrap">
+          <table id="tableWinners">
+            <thead>
+              <tr>
+                <th><span>Category</span></th>
+                <th><span>Winner</span></th>
+                <th class="hide-sm"><span>Notes</span></th>
+              </tr>
+            </thead>
+            <tbody id="bodyWinners">
+              <tr><td colspan="3" style="padding:24px;">Waiting for winners…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   </div>
+
+  <div id="confetti" class="confetti" aria-hidden="true"></div>
+
+  <script>
+    // ===== Configuration =====
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdf-pBP_AyYyPgagUN1qXI5hCTLYajF473HMQpbeTG9JDymQA970RNg-2ymgJqmw_Cj3S2w_05rSvL/pub?gid=579714765&single=true&output=csv";
+    const POLL_MS = 30000; // 30s
+    const WINNERS_ORDER_KEY = "oscars_winners_order_v1"; // localStorage key for the order winners are revealed
+
+    // Synonyms to map headers reliably
+    const MAIN_SYNONYMS = {
+      name: ["participant","name","player","entry","team","user","contestant"],
+      score: ["score","points","total","pts"]
+    };
+    const TB_SYNONYMS = {
+      name: ["participant","name","player","entry","team","user","contestant"],
+      tbScore: ["tb score","tiebreaker score","score","points","pts"]
+    };
+    // Winners: flexible names
+    const WIN_SYNONYMS = {
+      category: ["category","award","award name","oscar","category name"],
+      winner: ["winner","winners","won","result","selected","pick","film","title","name"],
+      notes: ["notes","comment","remarks","extra"]
+    };
+
+    // ===== Utilities =====
+    const byId = (id) => document.getElementById(id);
+    const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+
+    const setStatus     = (t,e=false)=>{const p=byId("statusPill");p.textContent=t;p.classList.toggle("error",e);p.classList.toggle("live",!e&&t.toLowerCase()==="live");};
+    const setTBStatus   = (t,e=false)=>{const p=byId("tbStatus");p.textContent=t;p.classList.toggle("error",e);p.classList.toggle("live",!e&&t.toLowerCase()==="live");};
+    const setWinStatus  = (t,e=false)=>{const p=byId("winnersStatus");p.textContent=t;p.classList.toggle("error",e);p.classList.toggle("live",!e&&t.toLowerCase()==="live");};
+
+    function escapeHtml(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");}
+    function numify(x,f=NaN){const n=Number(String(x??"").replace(/[^0-9.-]/g,""));return Number.isFinite(n)?n:f;}
+
+    // CSV parser (quotes & commas)
+    function parseCSV(text){
+      const rows=[];let cur=[],cell="",inQ=false,i=0;
+      while(i<text.length){const c=text[i];
+        if(c==='"'){if(inQ&&text[i+1]==='"'){cell+='"';i+=2;continue;} inQ=!inQ;i++;continue;}
+        if(!inQ&&(c===','||c==='\n'||c==='\r')){cur.push(cell);cell=""; if(c===','){i++;continue;} if(c==='\r'&&text[i+1]==='\n')i++; i++; rows.push(cur);cur=[];continue;}
+        cell+=c;i++;
+      }
+      cur.push(cell); if(cur.some(x=>String(x).trim()!=="")) rows.push(cur); return rows;
+    }
+    const toLower = (arr)=>arr.map(x=>String(x||"").trim().toLowerCase());
+    function buildMapper(headers, synonyms){
+      const lower=toLower(headers);const map={};
+      for(const [field,syns] of Object.entries(synonyms)){let idx=-1;for(const s of syns){const at=lower.indexOf(s);if(at!==-1){idx=at;break;}} map[field+"Idx"]=idx;}
+      map.raw=headers;return map;
+    }
+
+    // Detect "section title" single-cell rows like "OSCAR WINNERS", "TIEBREAKER SCORES", etc.
+    function isSectionTitleRow(cells){
+      const nonEmpty=cells.filter(c=>String(c).trim()!=="");
+      if(nonEmpty.length!==1) return false;
+      const only=String(nonEmpty[0]).trim().toLowerCase();
+      return /(tiebreaker|tie\s*breaker|bracket|oscar\s*winners?).*(score|scores)?$/.test(only)
+          || /^(tiebreaker|bracket)\s*scores?$/.test(only)
+          || /^oscar\s*winners?$/.test(only);
+    }
+
+    function isScoreHeaderRow(cells){
+      const l=toLower(cells);
+      const hasName = MAIN_SYNONYMS.name.some(s=>l.includes(s));
+      const hasScore= MAIN_SYNONYMS.score.some(s=>l.includes(s)) || TB_SYNONYMS.tbScore.some(s=>l.includes(s));
+      return hasName && hasScore;
+    }
+    function isWinnersHeaderRow(cells){
+      const l=toLower(cells);
+      const hasCat = WIN_SYNONYMS.category.some(s=>l.includes(s));
+      const hasWin = WIN_SYNONYMS.winner.some(s=>l.includes(s));
+      return hasCat && hasWin;
+    }
+
+    // Split all tables; a table ends at the next header OR a section title row (whichever comes first)
+    function splitAllTables(rows){
+      const headerIdxs=[];
+      for(let i=0;i<rows.length;i++){
+        const r=rows[i];
+        if(!r || r.every(c=>String(c).trim()==="")) continue;
+        if(isScoreHeaderRow(r) || isWinnersHeaderRow(r)) headerIdxs.push(i);
+      }
+      if(!headerIdxs.length) throw new Error("No header rows detected");
+
+      // Precompute all section-title indices for early termination
+      const sectionIdxs=[];
+      for(let i=0;i<rows.length;i++){ if(isSectionTitleRow(rows[i])) sectionIdxs.push(i); }
+
+      const tables=[];
+      for(let h=0;h<headerIdxs.length;h++){
+        const start=headerIdxs[h];
+        const nextHeader = headerIdxs[h+1] ?? rows.length;
+        // next section title AFTER start
+        const nextSection = sectionIdxs.find(idx=>idx>start) ?? rows.length;
+        const end = Math.min(nextHeader, nextSection);
+        tables.push({ header: rows[start], body: rows.slice(start+1, end) });
+      }
+      return tables;
+    }
+
+    function medalFor(rank){
+      if(rank===1) return '<span class="medal" title="1st">🥇</span>';
+      if(rank===2) return '<span class="medal silver" title="2nd">🥈</span>';
+      if(rank===3) return '<span class="medal bronze" title="3rd">🥉</span>';
+      return '<span class="medal" style="opacity:.25" title="Rank">★</span>';
+    }
+
+    // ===== State =====
+    const state = {
+      main: { records: [], sort: { key: "score", dir: "desc" } },
+      tb:   { records: [], sort: { key: "tbScore", dir: "desc" } },
+      winners: { records: [] }
+    };
+    let lastLeader = localStorage.getItem("oscars_last_leader") || "";
+
+    // ===== Ranking & Rendering (Main) =====
+    function rankByScore(records){
+      records.sort((a,b)=> (b.score - a.score) || a.name.localeCompare(b.name));
+      let lastScore=null,lastRank=0;
+      for(let i=0;i<records.length;i++){
+        const r=records[i];
+        if(r.score===lastScore) r.rank=lastRank;
+        else { r.rank=i+1; lastRank=r.rank; lastScore=r.score; }
+      }
+      return records;
+    }
+
+    function renderMain(){
+      const body=byId("bodyMain");
+      let rows=state.main.records.map(r=>({...r}));
+      const {key,dir}=state.main.sort; const mul=dir==="asc"?1:-1;
+      rows.sort((a,b)=>{let va=a[key],vb=b[key]; if(key==="score"||key==="rank"){va=Number(va)||0;vb=Number(vb)||0;} return (va<vb?-1:va>vb?1:0)*mul;});
+      body.innerHTML="";
+      for(const r of rows){
+        const tr=document.createElement("tr");
+        tr.innerHTML=`
+          <td><span class="rank">${medalFor(r.rank)} <span>#${r.rank}</span></span></td>
+          <td class="name">${escapeHtml(r.name)}</td>
+          <td class="right">${Number.isFinite(r.score)?r.score:"-"}</td>
+        `;
+        body.appendChild(tr);
+      }
+      byId("countMain").textContent=`${rows.length} shown`;
+    }
+
+    // ===== Rendering (Tiebreaker) =====
+    function buildTBHeader(){
+      const head=byId("headTB");
+      head.innerHTML=`
+        <th style="width:90px;"><span class="sort" data-table="tb" data-key="rank">Rank</span></th>
+        <th><span class="sort" data-table="tb" data-key="name">Contestant <span class="arrow">↕</span></span></th>
+        <th class="right"><span class="sort" data-table="tb" data-key="tbScore">TB Score <span class="arrow">↕</span></span></th>
+      `;
+    }
+    function renderTB(){
+      const body=byId("bodyTB");
+      let rows=state.tb.records.map(r=>({...r}));
+      const {key,dir}=state.tb.sort; const mul=dir==="asc"?1:-1;
+      rows.sort((a,b)=>{let va=a[key],vb=b[key]; if(["tbScore","rank"].includes(key)){va=Number(va)||0;vb=Number(vb)||0;} return (va<vb?-1:va>vb?1:0)*mul;});
+      if(key==="tbScore"){
+        rows.sort((a,b)=> (b.tbScore - a.tbScore) || a.name.localeCompare(b.name));
+        let last=null,lastRank=0; rows.forEach((r,i)=>{ if(r.tbScore===last) r.rank=lastRank; else { r.rank=i+1; lastRank=r.rank; last=r.tbScore; }});
+      }
+      body.innerHTML="";
+      for(const r of rows){
+        const tr=document.createElement("tr");
+        tr.innerHTML=`
+          <td><span class="rank">${medalFor(r.rank)} <span>#${r.rank}</span></span></td>
+          <td class="name">${escapeHtml(r.name)}</td>
+          <td class="right">${Number.isFinite(r.tbScore)?r.tbScore:"-"}</td>
+        `;
+        body.appendChild(tr);
+      }
+      byId("countTB").textContent=`${rows.length} shown`;
+    }
+
+    // Confetti on overall leader change
+    function leaderConfetti(newLeaderName){
+      try{
+        if(!newLeaderName || newLeaderName===lastLeader) return;
+        lastLeader=newLeaderName; localStorage.setItem("oscars_last_leader", lastLeader);
+        const layer=byId("confetti"); layer.innerHTML="";
+        const colors=["#f5c542","#ffdf7e","#a78bfa","#22c55e","#ef4444","#f59e0b"];
+        const count=90;
+        for(let i=0;i<count;i++){
+          const e=document.createElement("i");
+          e.style.left=Math.random()*100+"vw";
+          e.style.background=colors[(Math.random()*colors.length)|0];
+          e.style.transform=`translateY(-20vh) rotate(${Math.random()*90}deg)`;
+          e.style.opacity=(0.7+Math.random()*0.3).toFixed(2);
+          e.style.animationDuration=(1000+Math.random()*1100).toFixed(0)+"ms";
+          e.style.borderRadius=(Math.random()>.5?"2px":"6px");
+          layer.appendChild(e);
+        }
+        setTimeout(()=>{layer.innerHTML="";},1900);
+      }catch{}
+    }
+
+    // ===== Cleaners & Mappers =====
+    function cleanBodyRows(body){
+      return body.filter(r=>r && r.some(c=>String(c).trim()!=="")).filter(r=>!isSectionTitleRow(r));
+    }
+    function mapMainRecords(header, body){
+      const map=buildMapper(header, MAIN_SYNONYMS);
+      if(map.nameIdx<0 || map.scoreIdx<0) throw new Error("Main table missing 'Contestant'/'Score'.");
+      const rows=cleanBodyRows(body);
+      const recs=rows.map(r=>({name:String(r[map.nameIdx]??"").trim(), score:numify(r[map.scoreIdx],0)}));
+      recs.forEach(rr=>{ if(!Number.isFinite(rr.score)) rr.score=0; });
+      return rankByScore(recs);
+    }
+    function mapTBRecords(header, body){
+      const map=buildMapper(header, TB_SYNONYMS);
+      if(map.nameIdx<0 || map.tbScoreIdx<0) throw new Error("Tiebreaker table missing 'Contestant'/'Score'.");
+      const rows=cleanBodyRows(body);
+      const recs=rows.map(r=>({name:String(r[map.nameIdx]??"").trim(), tbScore:numify(r[map.tbScoreIdx],0)}));
+      recs.sort((a,b)=> (b.tbScore - a.tbScore) || a.name.localeCompare(b.name));
+      let last=null,lastRank=0; recs.forEach((r,i)=>{ if(r.tbScore===last) r.rank=lastRank; else { r.rank=i+1; lastRank=r.rank; last=r.tbScore; }});
+      return recs;
+    }
+    function mapWinnersRecords(header, body){
+      const map=buildMapper(header, WIN_SYNONYMS);
+      if(map.categoryIdx<0 || map.winnerIdx<0) return []; // silently skip if headers absent
+      const rows=cleanBodyRows(body);
+      const recs=rows.map(r=>({
+        category:String(r[map.categoryIdx]??"").trim(),
+        winner:String(r[map.winnerIdx]??"").trim(),
+        notes: map.notesIdx>=0 ? String(r[map.notesIdx]??"").trim() : ""
+      })).filter(x=>x.category!=="" && x.winner!=="");
+      return recs;
+    }
+
+    // Winners: preserve reveal order with localStorage
+    function updateWinnersOrder(current){
+      const map=Object.create(null); current.forEach(r=>{map[r.category]=r;});
+      let order=[]; try{order=JSON.parse(localStorage.getItem(WINNERS_ORDER_KEY)||"[]");}catch{order=[];}
+      // keep existing order, drop removed
+      order=order.filter(cat=>map[cat]);
+      // append new categories at end
+      for(const r of current){ if(!order.includes(r.category)) order.push(r.category); }
+      localStorage.setItem(WINNERS_ORDER_KEY, JSON.stringify(order));
+      return order.map(cat=>map[cat]).filter(Boolean);
+    }
+    function renderWinners(records){
+      const body=byId("bodyWinners");
+      body.innerHTML="";
+      if(!records.length){ body.innerHTML=`<tr><td colspan="3" style="padding:24px;">Waiting for winners…</td></tr>`; return; }
+      for(const r of records){
+        const tr=document.createElement("tr");
+        tr.innerHTML=`
+          <td>${escapeHtml(r.category)}</td>
+          <td class="name">${escapeHtml(r.winner)}</td>
+          <td class="hide-sm">${escapeHtml(r.notes||"")}</td>
+        `;
+        body.appendChild(tr);
+      }
+      byId("countWinners").textContent=`${records.length} shown`;
+    }
+
+    // ===== Fetch + Refresh =====
+    async function fetchCSV(url){
+      const res=await fetch(url,{cache:"no-store"}); if(!res.ok) throw new Error(`Fetch failed: HTTP ${res.status}`); return await res.text();
+    }
+
+    async function refresh(){
+      try{
+        setStatus("Updating…");
+        const text = await fetchCSV(CSV_URL);
+        const rows = parseCSV(text);
+        if(!rows.length) throw new Error("CSV contained no rows");
+
+        const tables = splitAllTables(rows); // [{header, body}, ...]
+
+        // Classify: first score table => main; second score table => TB; winners table => winners
+        let mainT=null, tbT=null, winT=null;
+        for(const t of tables){
+          if(isScoreHeaderRow(t.header)){
+            if(!mainT) mainT=t;
+            else if(!tbT) tbT=t;
+          } else if(isWinnersHeaderRow(t.header)){
+            winT=t;
+          }
+        }
+
+        // Main
+        if(!mainT) throw new Error("Could not find main score table.");
+        state.main.records = mapMainRecords(mainT.header, mainT.body);
+        leaderConfetti(state.main.records[0]?.name || "");
+        renderMain();
+
+        // TB
+        if(tbT){
+          state.tb.records = mapTBRecords(tbT.header, tbT.body);
+          buildTBHeader();
+          byId("tbSection").hidden=false; setTBStatus("Live");
+          renderTB();
+        } else {
+          byId("tbSection").hidden=true;
+        }
+
+        // Winners
+        if(winT){
+          const winnersNow = mapWinnersRecords(winT.header, winT.body);
+          const ordered = updateWinnersOrder(winnersNow);
+          state.winners.records = ordered;
+          byId("winnersSection").hidden = ordered.length===0;
+          if(ordered.length>0){ setWinStatus("Live"); renderWinners(ordered); }
+        } else {
+          byId("winnersSection").hidden=true;
+        }
+
+        byId("updatedAt").textContent=`Last updated: ${new Date().toLocaleString()}`;
+        setStatus("Live");
+      }catch(err){
+        console.error("Refresh error:",err);
+        setStatus(`Update failed — retrying…`, true);
+        if(!byId("tbSection").hidden) setTBStatus("Update failed — retrying…", true);
+        if(!byId("winnersSection").hidden) setWinStatus("Update failed — retrying…", true);
+      }
+    }
+
+    // Sorting events (Main & TB only; Winners fixed by reveal order)
+    document.addEventListener("click",(e)=>{
+      const el=e.target.closest(".sort"); if(!el) return;
+      const table=el.dataset.table, key=el.dataset.key;
+      if(table==="main"){
+        const s=state.main.sort;
+        state.main.sort = (s.key===key)?{key,dir:s.dir==="asc"?"desc":"asc"}:{key,dir:key==="name"?"asc":"desc"};
+        $$(".sort[data-table='main']").forEach(x=>{x.classList.toggle("active",x.dataset.key===state.main.sort.key); const a=x.querySelector(".arrow"); if(a) a.textContent=state.main.sort.dir==="asc"?"↑":"↓";});
+        renderMain();
+      }
+      if(table==="tb"){
+        const s=state.tb.sort;
+        state.tb.sort = (s.key===key)?{key,dir:s.dir==="asc"?"desc":"asc"}:{key,dir:key==="name"?"asc":(key==="diff"?"asc":"desc")};
+        $$(".sort[data-table='tb']").forEach(x=>{x.classList.toggle("active",x.dataset.key===state.tb.sort.key); const a=x.querySelector(".arrow"); if(a) a.textContent=state.tb.sort.dir==="asc"?"↑":"↓";});
+        renderTB();
+      }
+    });
+
+    // Admin: reset winners order
+    byId("resetWinners").addEventListener("click",()=>{
+      localStorage.removeItem(WINNERS_ORDER_KEY);
+      // Next refresh will re-seed order; quick re-render with current
+      renderWinners(updateWinnersOrder(state.winners.records));
+    });
+
+    // Boot
+    refresh();
+    setInterval(refresh, POLL_MS);
+  </script>
 </body>
 </html>
