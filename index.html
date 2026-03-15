@@ -1,10 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Oscars Bracket — Live Leaderboard + Tiebreaker</title>
+  <!-- iPhone / Safari friendliness -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>BB&amp;D+E Oscars Bracket — Live Leaderboard</title>
   <meta name="description" content="Live, auto-updating Oscars bracket leaderboard with tiebreakers. Sortable, mobile-friendly, and Oscar-themed!" />
   <style>
     :root {
@@ -26,6 +28,10 @@
       --row-alt: #0c0f14;
       --row-border: #232832;
       --shadow: 0 14px 40px rgba(0,0,0,.45);
+      --tap: 48px; /* minimum touch size */
+      --pad: max(16px, env(safe-area-inset-left));
+      --pad-r: max(16px, env(safe-area-inset-right));
+      --pad-b: max(20px, env(safe-area-inset-bottom));
     }
     @media (prefers-color-scheme: light) {
       :root {
@@ -52,12 +58,17 @@
       color: var(--text);
     }
 
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 28px 20px 44px; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 28px var(--pad) calc(44px + var(--pad-b)); }
 
-    header { display: grid; gap: 10px; margin-bottom: 22px; }
+    header { display: grid; gap: 8px; margin-bottom: 22px; }
     .title {
       display:flex; align-items:center; gap:14px;
-      font-size: clamp(1.5rem, 2.2vw, 2.1rem); font-weight: 900; letter-spacing: .2px;
+      font-size: clamp(1.6rem, 3.8vw, 2.2rem); font-weight: 900; letter-spacing: .25px;
+      line-height: 1.15;
+      /* Fun gold gradient text */
+      background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      text-shadow: 0 0 0 rgba(0,0,0,0);
     }
     .trophy {
       width: 58px; height: 58px; border-radius: 12px; display:grid; place-items:center;
@@ -66,6 +77,7 @@
       border: 1px solid rgba(245,197,66,.5);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), var(--shadow);
       font-size: 30px;
+      flex: 0 0 auto;
     }
     .subtitle { color: var(--muted); font-size: .95rem; }
 
@@ -73,7 +85,8 @@
     .ribbon {
       display:flex; align-items:center; gap:10px; color: var(--gold);
       font-weight: 700; text-transform: uppercase; letter-spacing: .12em;
-      margin-top: 8px;
+      margin-top: 4px;
+      min-height: 24px;
     }
     .ribbon .bar { flex:1; height: 2px;
       background: linear-gradient(90deg, transparent, var(--gold), transparent);
@@ -83,7 +96,7 @@
     /* Section */
     .section { margin-top: 26px; }
     .section h2 {
-      margin: 0 0 6px; font-size: clamp(1.15rem, 2vw, 1.4rem);
+      margin: 0 0 6px; font-size: clamp(1.15rem, 3.2vw, 1.45rem);
       display: inline-flex; align-items: center; gap: 10px;
       background: linear-gradient(90deg, var(--gold), var(--gold-2));
       -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -92,23 +105,12 @@
     .section .desc { color: var(--muted); margin-bottom: 10px; }
 
     .controls {
-      display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; margin-bottom: 12px;
-    }
-    .control {
-      background: var(--panel);
-      border: 1px solid var(--row-border);
-      border-radius: 12px; padding: 10px 12px;
-      box-shadow: var(--shadow);
-      display: flex; align-items: center; gap: 10px;
-    }
-    .search { min-width: 240px; flex: 1 1 260px; display: flex; align-items: center; gap: 10px; }
-    .search input {
-      background: transparent; border: none; outline: none; color: var(--text);
-      width: 100%; font-size: .95rem;
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 4px; margin-bottom: 12px;
     }
     .pill {
-      padding: 6px 10px; border-radius: 999px; background: var(--panel);
-      border: 1px solid var(--row-border); color: var(--muted); font-size: .85rem;
+      padding: 8px 12px; border-radius: 999px; background: var(--panel);
+      border: 1px solid var(--row-border); color: var(--muted); font-size: .9rem;
+      min-height: var(--tap); display:inline-flex; align-items:center;
     }
     .pill.error { color: #fff; background: #3a0d0d; border-color: #5f1616; }
     .pill.live { color: var(--green); }
@@ -121,15 +123,15 @@
       border: 1px solid var(--row-border);
       border-radius: 18px; overflow: hidden; box-shadow: var(--shadow);
     }
-    .table-wrap { overflow-x: auto; }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     table { width: 100%; border-collapse: collapse; }
     thead th {
       background: linear-gradient(180deg, var(--panel-2), transparent);
-      text-align: left; padding: 12px 14px; font-weight: 800; font-size: .92rem;
+      text-align: left; padding: 14px 14px; font-weight: 800; font-size: 1rem;
       border-bottom: 1px solid var(--row-border);
       position: sticky; top: 0; z-index: 1; white-space: nowrap;
     }
-    tbody td { padding: 12px 14px; border-top: 1px solid var(--row-border); }
+    tbody td { padding: 14px 14px; border-top: 1px solid var(--row-border); font-size: 1rem; }
     tbody tr:nth-child(even) td { background: var(--row-alt); }
 
     .rank { display: inline-flex; align-items: center; gap: 8px; font-weight: 900; }
@@ -144,10 +146,11 @@
     .right { text-align: right; }
     .name { font-weight: 800; }
 
-    .updated { color: var(--muted); font-size: .85rem; padding: 12px 16px 16px; }
+    .updated { color: var(--muted); font-size: .9rem; padding: 12px 16px 16px; }
 
     .sort {
       cursor: pointer; user-select: none; display: inline-flex; align-items: center; gap: 6px;
+      min-height: var(--tap);
     }
     .sort .arrow { opacity: .65; font-size: .9em; }
     .sort.active { color: var(--gold); }
@@ -179,34 +182,34 @@
       100% { transform: translateY(120vh) rotate(540deg); }
     }
 
-    /* Responsive helper */
+    /* Mobile tweaks */
     @media (max-width: 560px) {
-      .hide-sm { display: none; }
-      thead th, tbody td { padding: 10px 12px; }
+      html, body { font-size: 16px; } /* avoid iOS zoom on inputs; larger tap targets */
+      thead th, tbody td { padding: 12px 12px; }
+      .title { gap: 10px; }
+      .trophy { width: 52px; height: 52px; font-size: 26px; }
+      .controls { gap: 8px; }
+      .pill { padding: 8px 10px; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <div class="title">
+      <div class="title" aria-label="BB and D plus E Oscars Bracket">
         <div class="trophy" aria-hidden="true">🏆</div>
-        <span>Oscars Bracket — Live Leaderboard</span>
+        <span>BB&amp;D+E Oscars Bracket</span>
       </div>
-      <div class="subtitle">Auto-refreshes every 30 seconds • Click headers to sort • Search by name</div>
+      <div class="subtitle">Auto-refreshes every 30 seconds • Click headers to sort</div>
       <div class="ribbon"><div class="bar"></div><span>Academy Awards</span><div class="bar"></div></div>
     </header>
 
     <!-- ===== Overall Leaderboard Section ===== -->
     <section id="mainSection" class="section">
-      <h2>Oscar Bracket (Overall Leaderboard)</h2>
+      <h2>Oscars Bracket (Overall Leaderboard)</h2>
       <div class="desc">Sorted by score (ties share the same rank). Click a header to sort.</div>
 
       <div class="controls">
-        <div class="control search" role="search">
-          <span aria-hidden="true">🔎</span>
-          <input id="searchMain" type="search" placeholder="Search participants…" aria-label="Search participants (leaderboard)" />
-        </div>
         <div class="pill" id="countMain">—</div>
         <div class="pill" id="statusPill">Loading…</div>
       </div>
@@ -244,10 +247,6 @@
       <div class="desc" id="tbDesc">Higher Tiebreaker Score ranks higher. Click headers to sort.</div>
 
       <div class="controls">
-        <div class="control search" role="search">
-          <span aria-hidden="true">🔎</span>
-          <input id="searchTB" type="search" placeholder="Search participants…" aria-label="Search participants (tiebreaker)" />
-        </div>
         <div class="pill" id="countTB">—</div>
         <div class="pill" id="tbStatus">—</div>
       </div>
@@ -420,11 +419,8 @@
     }
 
     function renderMain() {
-      const q = byId("searchMain").value.trim().toLowerCase();
       const body = byId("bodyMain");
-      let rows = state.main.records.filter(r =>
-        r.name.toLowerCase().includes(q)
-      ).map(r => ({...r}));
+      let rows = state.main.records.map(r => ({...r}));
 
       const { key, dir } = state.main.sort;
       const mul = dir === "asc" ? 1 : -1;
@@ -458,10 +454,8 @@
     }
 
     function renderTB() {
-      const q = byId("searchTB").value.trim().toLowerCase();
       const body = byId("bodyTB");
-
-      let rows = state.tb.records.filter(r => r.name.toLowerCase().includes(q)).map(r => ({...r}));
+      let rows = state.tb.records.map(r => ({...r}));
 
       const { key, dir } = state.tb.sort;
       const mul = dir === "asc" ? 1 : -1;
@@ -519,7 +513,7 @@
 
     // ===== Data mapping =====
     function cleanBodyRows(body) {
-      // Drop empty rows and "section title" rows that are single-cell labels like "TIEBREAKER SCORES"
+      // Drop empty rows and "section title" rows like "TIEBREAKER SCORES"
       return body.filter(r => r && r.some(c => String(c).trim() !== ""))
                  .filter(r => !isSectionTitleRow(r));
     }
@@ -653,10 +647,6 @@
         renderTB();
       }
     });
-
-    // Search
-    byId("searchMain").addEventListener("input", renderMain);
-    byId("searchTB").addEventListener("input", renderTB);
 
     // Boot
     refresh();
