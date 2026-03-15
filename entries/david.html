@@ -4,50 +4,90 @@
   <meta charset=\"utf-8\" />
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\" />
   <title>David's Oscar Picks — BB&D+E Oscars Bracket</title>
-  <meta name=\"description\" content=\"Contestant entries for Oscars bracket\"/>
+  <meta name=\"description\" content=\"David's selections for the Oscars bracket\"/>
   <style>
-    :root{ color-scheme: light dark; --bg:#0a0a0a; --bg1:rgba(245,197,66,.10); --bg2:rgba(160,82,45,.10); --panel:#111317; --panel2:#171a20; --text:#f6f7fb; --muted:#aab1bc; --gold:#f5c542; --gold2:#ffdf7e; --gold3:#b68e2a; --row:#0c0f14; --border:#232832; --shadow:0 14px 40px rgba(0,0,0,.45); --tap:48px; }
-    @media (prefers-color-scheme: light){ :root{ --bg:#111317; --bg1:rgba(245,197,66,.18); --bg2:rgba(160,82,45,.14); --panel:#171a20; --panel2:#1d212a; --text:#f6f7fb; --muted:#cfd6e0; --row:#12161d; --border:#2a3040; --shadow:0 10px 28px rgba(0,0,0,.35);} }
+    :root{
+      color-scheme: light dark;
+      /* Core theme */
+      --bg:#0a0a0a; --bg1:rgba(245,197,66,.10); --bg2:rgba(160,82,45,.10);
+      --panel:#111317; --panel2:#171a20; --text:#f6f7fb; --muted:#aab1bc;
+      --gold:#f5c542; --gold2:#ffdf7e; --gold3:#b68e2a; --amber:#d9a441;
+      --row:#0c0f14; --border:#232832; --shadow:0 14px 40px rgba(0,0,0,.45);
+      --tap:48px;
+    }
+    @media (prefers-color-scheme: light){ :root{ --bg:#0e0f12; --bg1:rgba(245,197,66,.18); --bg2:rgba(160,82,45,.14); --panel:#14161c; --panel2:#191c23; --text:#f6f7fb; --muted:#d3d9e3; --row:#10131a; --border:#2a3040; --shadow:0 10px 28px rgba(0,0,0,.35);} }
 
     html, body{ height:100%; }
-    body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background: radial-gradient(1200px 800px at 0% 0%, var(--bg1), transparent 60%), radial-gradient(1200px 800px at 100% 10%, var(--bg2), transparent 55%), var(--bg); color: var(--text); }
-    .wrap{ max-width:1100px; margin:0 auto; padding: clamp(18px, 3vw, 28px) 16px clamp(36px, 6vw, 56px); }
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background:
+        radial-gradient(1400px 900px at 0% 0%, var(--bg1), transparent 60%),
+        radial-gradient(1200px 800px at 100% 10%, var(--bg2), transparent 55%), var(--bg);
+      color: var(--text);
+    }
+    .wrap{ max-width:1100px; margin:0 auto; padding: clamp(16px, 3vw, 28px) 16px clamp(40px, 6vw, 64px); }
 
-    /* Robust Oscar gold header */
-    .hdr{ display:flex; align-items:center; gap:14px; margin-bottom:8px; }
-    .trophy{ width: clamp(52px, 9vw, 72px); height: clamp(52px, 9vw, 72px); border-radius: 14px; display:grid; place-items:center; background: conic-gradient(from 210deg, rgba(245,197,66,.38), rgba(245,197,66,.10) 40%, rgba(167,139,250,.28) 60%, rgba(245,197,66,.38)); border:1px solid rgba(245,197,66,.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), var(--shadow); font-size: clamp(26px, 5vw, 34px); }
-    .title{
-      font-weight: 1000; letter-spacing: .3px; line-height:1.08;
-      font-size: clamp(1.8rem, 4.8vw, 2.6rem);
+    /* HERO BANNER */
+    .hero{
+      position: relative; overflow:hidden; border-radius: 18px; box-shadow: var(--shadow);
+      border:1px solid rgba(245,197,66,.22);
+      background:
+        linear-gradient(135deg, rgba(245,197,66,.12), rgba(167,139,250,.10) 40%, rgba(245,197,66,.12)),
+        radial-gradient(600px 180px at -10% -30%, rgba(245,197,66,.18), transparent 60%),
+        radial-gradient(500px 180px at 110% 0%, rgba(167,139,250,.16), transparent 55%),
+        #0b0b0e;
+    }
+    .hero::after{ /* film-grain subtle */
+      content:""; position:absolute; inset:0; pointer-events:none; opacity:.14;
+      background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22 viewBox=%220 0 48 48%22%3E%3Ccircle cx=%226%22 cy=%226%22 r=%221%22 fill=%22%23ffffff%22/%3E%3C/svg%3E');
+      background-size: 48px 48px; mix-blend-mode: soft-light;
+    }
+    .hero-inner{ display:flex; gap:16px; align-items:center; padding: clamp(16px, 4vw, 26px); }
+    .trophy{ width: clamp(56px, 10vw, 78px); height: clamp(56px, 10vw, 78px); border-radius: 16px; display:grid; place-items:center;
+      background: conic-gradient(from 210deg, rgba(245,197,66,.38), rgba(245,197,66,.10) 40%, rgba(167,139,250,.28) 60%, rgba(245,197,66,.38));
+      border:1px solid rgba(245,197,66,.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), var(--shadow);
+      font-size: clamp(28px, 5.4vw, 36px);
+    }
+    .hero-txt{ display:grid; gap:6px; }
+    .hero-title{
+      font-weight: 1000; letter-spacing:.3px; line-height:1.05; margin:0;
+      font-size: clamp(1.9rem, 5vw, 2.7rem);
       background: linear-gradient(180deg, var(--gold) 0%, var(--gold2) 45%, var(--gold) 100%);
       -webkit-background-clip:text; background-clip:text; color: transparent;
-      text-shadow: 0 2px 0 rgba(0,0,0,.55), 0 10px 28px rgba(0,0,0,.45);
+      text-shadow: 0 2px 0 rgba(0,0,0,.55), 0 18px 38px rgba(0,0,0,.55);
     }
-    .subtitle{ color: var(--muted); font-size: clamp(.9rem, 1.8vw, 1rem); margin-top: 2px; }
+    .hero-sub{ color: var(--muted); font-size: clamp(.92rem, 1.8vw, 1rem); }
 
-    /* Ribbon */
-    .ribbon{ display:flex; align-items:center; gap:10px; color: var(--gold); font-weight:800; text-transform:uppercase; letter-spacing:.14em; margin: 8px 0 14px; min-height:24px; }
+    .ribbon{ display:flex; align-items:center; gap:10px; color: var(--gold); font-weight:800; text-transform:uppercase; letter-spacing:.14em; margin: 12px 0 16px; }
     .ribbon .bar{ flex:1; height:2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity:.7; }
 
+    /* CARD TABLE */
     .board{ background: var(--panel); border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow: var(--shadow); }
     .table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
-    table{ width:100%; border-collapse:collapse; }
-    thead th{ background: linear-gradient(180deg, var(--panel2), transparent); text-align:left; padding: clamp(10px, 1.6vw, 14px); font-weight:900; font-size: clamp(1rem, 2.4vw, 1.05rem); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:1; }
-    tbody td{ padding: clamp(10px, 1.6vw, 14px); border-top:1px solid var(--border); font-size: clamp(0.98rem, 2.3vw, 1.02rem); }
+    table{ width:100%; border-collapse: collapse; }
+    thead th{ background: linear-gradient(180deg, var(--panel2), transparent); text-align:left; padding: clamp(10px, 1.6vw, 14px); font-weight:900; font-size: clamp(1rem, 2.2vw, 1.06rem); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:1; }
+    tbody td{ padding: clamp(10px, 1.6vw, 14px); border-top:1px solid var(--border); font-size: clamp(.98rem, 2.2vw, 1.04rem); }
     tbody tr:nth-child(even) td{ background: var(--row); }
 
-    @media (max-width:560px){ html, body{ font-size:16px; } .wrap{ padding: 18px 12px 44px; } .hdr{ gap:12px; } }
+    /* Category chip styling on mobile (make category feel like a tag) */
+    @media (max-width:560px){
+      tbody td:first-child{ font-weight: 800; }
+      tbody td:last-child{ color: var(--muted); }
+    }
   </style>
 </head>
 <body>
   <div class=\"wrap\">
-    <div class=\"hdr\">
-      <div class=\"trophy\" aria-hidden=\"true\">🏆</div>
-      <div>
-        <div class=\"title\">David's Oscar Picks</div>
-        <div class=\"subtitle\">Part of BB&D+E Oscars Bracket</div>
+    <section class=\"hero\" aria-label=\"Header banner\">
+      <div class=\"hero-inner\">
+        <div class=\"trophy\" aria-hidden=\"true\">🏆</div>
+        <div class=\"hero-txt\">
+          <h1 class=\"hero-title\">David's Oscar Picks</h1>
+          <div class=\"hero-sub\">Part of BB&D+E Oscars Bracket</div>
+        </div>
       </div>
-    </div>
+    </section>
+
     <div class=\"ribbon\"><div class=\"bar\"></div><span>Academy Awards</span><div class=\"bar\"></div></div>
 
     <div class=\"board\">
