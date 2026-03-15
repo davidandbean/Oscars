@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -198,7 +199,7 @@
 
     <!-- ===== Overall Leaderboard Section ===== -->
     <section id="mainSection" class="section">
-      <h2>Best Picture (Overall Leaderboard)</h2>
+      <h2>Oscar Bracket (Overall Leaderboard)</h2>
       <div class="desc">Sorted by score (ties share the same rank). Click a header to sort.</div>
 
       <div class="controls">
@@ -357,6 +358,14 @@
       return map;
     }
 
+    // Detect typical "section title" rows like "BRACKET SCORES" or "TIEBREAKER SCORES"
+    function isSectionTitleRow(cells) {
+      const nonEmpty = cells.filter(c => String(c).trim() !== "");
+      if (nonEmpty.length !== 1) return false;
+      const only = String(nonEmpty[0]).trim().toLowerCase();
+      return /(tiebreaker|tie\s*breaker|bracket).*(score|scores)|^(tiebreaker|bracket)\s*scores?$/.test(only);
+    }
+
     function isLikelyHeaderRow(cells) {
       const l = toLower(cells);
       const hasName = MAIN_SYNONYMS.name.some(s => l.includes(s));
@@ -509,12 +518,18 @@
     }
 
     // ===== Data mapping =====
+    function cleanBodyRows(body) {
+      // Drop empty rows and "section title" rows that are single-cell labels like "TIEBREAKER SCORES"
+      return body.filter(r => r && r.some(c => String(c).trim() !== ""))
+                 .filter(r => !isSectionTitleRow(r));
+    }
+
     function mapMainRecords(header, body) {
       const map = buildMapper(header, MAIN_SYNONYMS);
       if (map.nameIdx < 0 || map.scoreIdx < 0) {
         throw new Error("Could not find 'Contestant'/'Score' columns for main table.");
       }
-      const rows = body.filter(r => r && r.some(c => String(c).trim() !== ""));
+      const rows = cleanBodyRows(body);
       const recs = rows.map(r => ({
         name: String(r[map.nameIdx] ?? "").trim(),
         score: numify(r[map.scoreIdx], 0)
@@ -528,7 +543,7 @@
       if (map.nameIdx < 0 || map.tbScoreIdx < 0) {
         throw new Error("Could not find 'Contestant'/'Score' columns for tiebreaker table.");
       }
-      const rows = body.filter(r => r && r.some(c => String(c).trim() !== ""));
+      const rows = cleanBodyRows(body);
       const recs = rows.map(r => ({
         name: String(r[map.nameIdx] ?? "").trim(),
         tbScore: numify(r[map.tbScoreIdx], 0)
