@@ -48,7 +48,7 @@ body{
 .ribbon{ display:flex; align-items:center; gap:10px; color: var(--gold); font-weight:700; text-transform:uppercase; letter-spacing:.12em; margin: 6px 0 12px; }
 .ribbon .bar{ flex:1; height:2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity:.6; }
 
-/* Board & filmstrip */
+/* Accordion Card */
 .board{
   background:
     linear-gradient(180deg, rgba(255,215,128,.06), transparent 40%),
@@ -61,25 +61,33 @@ body{
 .filmrow{ display:flex; gap:6px; }
 .filmcell{ width:12px; height:12px; border:1px solid rgba(255,255,255,.2); border-radius:3px; background: rgba(255,255,255,.06); }
 
-/* Table rows */
-.table-wrap{ overflow-x:auto; -webkit-overflow-scrolling: touch; }
- table{ width:100%; border-collapse: collapse; table-layout:auto; }
- thead th{
-  background: linear-gradient(180deg, var(--panel-2), transparent);
-  text-align:left; padding:14px 16px; font-weight:900; font-size:1rem;
-  border-bottom:1px solid var(--row-border);
-  position: sticky; top:0; z-index:1;
- }
- tbody td{ padding:14px 16px; border-top:1px solid var(--row-border); font-size:1rem; }
- tbody tr:nth-child(even) td{ background: var(--row-alt); }
- tbody td:nth-child(2){ font-weight:800; }
+/* Details/summary accordion items */
+.list{ margin:0; padding:0; }
+.details{ border-top:1px solid var(--row-border); list-style:none; }
+.details:first-child{ border-top:none; }
+summary{
+  cursor:pointer; position:relative; padding:14px 18px; outline:none;
+  display:flex; align-items:center; gap:12px; list-style:none; user-select:none;
+}
+summary .cat{ font-weight:800; }
+summary::marker{ display:none; content:""; }
+/* chevron */
+summary::after{
+  content:"›"; position:absolute; right:18px; transform: rotate(-90deg); color: var(--gold); transition: transform .18s ease, color .18s ease;
+}
+.details:not([open]) summary::after{ transform: rotate(90deg); color: var(--muted); }
 
-/* Mobile wrapping to avoid horizontal scroll */
+.content{ padding: 0 18px 16px 18px; color: var(--text); }
+.pick{ font-weight:500; }
+
+/* Alternate row background */
+.details:nth-child(even) summary{ background: var(--row-alt); }
+
+/* Mobile: ensure wrapping and large tap targets */
 @media (max-width: 680px){
   .title{ font-size: clamp(1.6rem, 6vw, 2.2rem); }
   .trophy{ width:52px; height:52px; font-size:26px; }
-  thead th, tbody td{ white-space: normal; overflow-wrap:anywhere; word-break:break-word; hyphens:auto; }
-  .table-wrap{ overflow-x:hidden; }
+  summary, .content{ white-space: normal; overflow-wrap:anywhere; word-break:break-word; hyphens:auto; }
 }
 </style>
 </head>
@@ -96,39 +104,32 @@ body{
         <div class=\"filmrow\" aria-hidden=\"true\"><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div><div class=\"filmcell\"></div></div>
         <div style=\"justify-self:end; font-weight:600; color:var(--gold);\">🎬 Picks</div>
       </div>
-      <div class=\"table-wrap\">
-        <table>
-          <thead>
-            <tr><th>Category</th><th>Pick</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Actor in a Leading Role</td><td>Michael B. Jordan - Sinners</td></tr>
-            <tr><td>Actor in a Supporting Role</td><td>Delroy Lindo - Sinners</td></tr>
-            <tr><td>Actress in a Leading Role</td><td>Emma Stone - Bugonia</td></tr>
-            <tr><td>Actress in a Supporting Role</td><td>Amy Madigan - Weapons</td></tr>
-            <tr><td>Animated Feature Film</td><td>K-Pop Demon Hunters</td></tr>
-            <tr><td>Animated Short Film</td><td>Butterfly</td></tr>
-            <tr><td>Cinematography</td><td>One Battle After Another</td></tr>
-            <tr><td>Costume Design</td><td>Frankenstein - Kate Hawley</td></tr>
-            <tr><td>Directing</td><td>Ryan Coogler - Sinners</td></tr>
-            <tr><td>Documentary Feature Film</td><td>Cutting Through Rocks</td></tr>
-            <tr><td>Documentary Short Film</td><td>Perfectly a Strangeness</td></tr>
-            <tr><td>Film Editing</td><td>One Battle After Another</td></tr>
-            <tr><td>International Feature Film</td><td>Sentimental Value</td></tr>
-            <tr><td>Makeup &amp; Hairstyling</td><td>Kokuho</td></tr>
-            <tr><td>Music (Original Score)</td><td>Sinners</td></tr>
-            <tr><td>Music (Original Song)</td><td>Golden - K-Pop Demon Hunters</td></tr>
-            <tr><td>Best Picture</td><td>Sinners</td></tr>
-            <tr><td>Production Design</td><td>Marty Supreme</td></tr>
-            <tr><td>Live Action Short Film</td><td>A Friend of Dorothy</td></tr>
-            <tr><td>Sound</td><td>One Battle After Another</td></tr>
-            <tr><td>Visual Effects</td><td>Avatar: Fire and Ash</td></tr>
-            <tr><td>Writing (Adapted Screenplay)</td><td>One Battle After Another</td></tr>
-            <tr><td>Writing (Original Screenplay)</td><td>Sinners</td></tr>
-            <tr><td>Casting</td><td>Marty Supreme - Jennifer Venditti</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <ul class=\"list\">
+        <li class="details"><details open><summary><span class="cat">Actor in a Leading Role</span></summary><div class="content"><div class="pick">Michael B. Jordan - Sinners</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Actor in a Supporting Role</span></summary><div class="content"><div class="pick">Delroy Lindo - Sinners</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Actress in a Leading Role</span></summary><div class="content"><div class="pick">Emma Stone - Bugonia</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Actress in a Supporting Role</span></summary><div class="content"><div class="pick">Amy Madigan - Weapons</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Animated Feature Film</span></summary><div class="content"><div class="pick">K-Pop Demon Hunters</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Animated Short Film</span></summary><div class="content"><div class="pick">Butterfly</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Cinematography</span></summary><div class="content"><div class="pick">One Battle After Another</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Costume Design</span></summary><div class="content"><div class="pick">Frankenstein - Kate Hawley</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Directing</span></summary><div class="content"><div class="pick">Ryan Coogler - Sinners</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Documentary Feature Film</span></summary><div class="content"><div class="pick">Cutting Through Rocks</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Documentary Short Film</span></summary><div class="content"><div class="pick">Perfectly a Strangeness</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Film Editing</span></summary><div class="content"><div class="pick">One Battle After Another</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">International Feature Film</span></summary><div class="content"><div class="pick">Sentimental Value</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Makeup &amp; Hairstyling</span></summary><div class="content"><div class="pick">Kokuho</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Music (Original Score)</span></summary><div class="content"><div class="pick">Sinners</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Music (Original Song)</span></summary><div class="content"><div class="pick">Golden - K-Pop Demon Hunters</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Best Picture</span></summary><div class="content"><div class="pick">Sinners</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Production Design</span></summary><div class="content"><div class="pick">Marty Supreme</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Live Action Short Film</span></summary><div class="content"><div class="pick">A Friend of Dorothy</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Sound</span></summary><div class="content"><div class="pick">One Battle After Another</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Visual Effects</span></summary><div class="content"><div class="pick">Avatar: Fire and Ash</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Writing (Adapted Screenplay)</span></summary><div class="content"><div class="pick">One Battle After Another</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Writing (Original Screenplay)</span></summary><div class="content"><div class="pick">Sinners</div></div></details></li>
+        <li class="details"><details open><summary><span class="cat">Casting</span></summary><div class="content"><div class="pick">Marty Supreme - Jennifer Venditti</div></div></details></li>
+      </ul>
     </div>
   </div>
 </body>
