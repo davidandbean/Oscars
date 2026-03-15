@@ -190,13 +190,7 @@
       .controls { gap: 8px; }
       .pill { padding: 8px 10px; }
     }
-  
-  .pillbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;}
-  .pillbar .hint{color:var(--muted);font-size:.9rem;margin-right:6px;}
-  .pillbar .pill{text-decoration:none !important;}
-  .pillbar .pill:visited{text-decoration:none !important;}
-  #countMain,#statusPill,#countTB,#tbStatus,#winnersStatus{display:none !important;}
-</style>
+  </style>
 </head>
 <body>
   <div class="wrap">
@@ -207,9 +201,7 @@
       </div>
       <div class="subtitle">Auto-refreshes every 30 seconds • Click headers to sort</div>
       <div class="ribbon"><div class="bar"></div><span>Academy Awards</span><div class="bar"></div></div>
-    
-<div id="entriesPills" class="pillbar"><span class="hint">Click to see your entries:</span><a class="pill" href="entries/abi.html">Abi</a><a class="pill" href="entries/bean.html">Bean</a><a class="pill" href="entries/beebo.html">Beebo</a><a class="pill" href="entries/damon.html">Damon</a><a class="pill" href="entries/david.html">David</a><a class="pill" href="entries/kim.html">Kim</a><a class="pill" href="entries/lydia.html">Lydia</a><a class="pill" href="entries/olivia.html">Olivia</a><a class="pill" href="entries/papa.html">Papa</a></div>
-</header>
+    </header>
 
     <!-- ===== Overall Leaderboard Section ===== -->
     <section id="mainSection" class="section">
@@ -326,7 +318,8 @@
     // ===== Configuration =====
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdf-pBP_AyYyPgagUN1qXI5hCTLYajF473HMQpbeTG9JDymQA970RNg-2ymgJqmw_Cj3S2w_05rSvL/pub?gid=579714765&single=true&output=csv";
     const POLL_MS = 30000; // 30s
-    const WINNERS_ORDER_KEY = "oscars_winners_order_v1"; // localStorage key for the order winners are revealed
+    const WINNERS_ORDER_KEY = "oscars_winners_order_v1";
+ const TBWIN_ORDER_KEY = "oscars_tbwinners_order_v1"; // localStorage key for the order winners are revealed
 
     // Synonyms to map headers reliably
     const MAIN_SYNONYMS = {
@@ -669,6 +662,29 @@
     // Boot
     refresh();
     setInterval(refresh, POLL_MS);
-  </script>
+  
+// ===== Tiebreaker winners helpers =====
+function updateTBWinnersOrder(current){
+  const map=Object.create(null); current.forEach(r=>{map[r.category]=r;});
+  let order=[]; try{order=JSON.parse(localStorage.getItem(TBWIN_ORDER_KEY)||'[]');}catch{order=[];}
+  order=order.filter(cat=>map[cat]);
+  for(const r of current){ if(!order.includes(r.category)) order.push(r.category); }
+  localStorage.setItem(TBWIN_ORDER_KEY, JSON.stringify(order));
+  return order.map(cat=>map[cat]).filter(Boolean);
+}
+function renderTBWinners(records){
+  const body=byId('bodyTBWinners'); if(!body) return; body.innerHTML='';
+  if(!records.length){ body.innerHTML='<tr><td colspan="3" style="padding:24px;">Waiting for tiebreaker winners…</td></tr>'; return; }
+  for(const r of records){
+    const tr=document.createElement('tr');
+    tr.innerHTML = `
+      <td>${escapeHtml(r.category)}</td>
+      <td class="name">${escapeHtml(r.winner)}</td>
+      <td class="hide-sm">${escapeHtml(r.notes||'')}</td>`;
+    body.appendChild(tr);
+  }
+  const c=byId('countTBWinners'); if(c) c.textContent=`${records.length} shown`;
+}
+</script>
 </body>
 </html>
